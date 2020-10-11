@@ -264,6 +264,15 @@
 
   void meter_led(byte _selector, byte _type)
   {
+    if (_type == 0) //OFF
+    {
+      #if LMDEBUG
+      Serial.println("LM Helper OFF ");
+      #endif
+      digitalWrite(PIN_LED1, LOW);
+      digitalWrite(PIN_LED2, LOW);
+      return;
+    }
     int PredictedExposure;
     int activeISO = ReadISO(); //read ISO from EEPROM
     //original int PredictedExposure = meter_compute(200);
@@ -285,7 +294,7 @@
     {
       return;
     }
-    if (_type == 1) //Manual Mode
+    if (_type == 2) //Manual Mode
     {
       //PredictedExposure = meter_compute(200,activeISO);
       //int slot = nearest(PredictedExposure, ShutterSpeed, 11, false); //Calculate the slot (
@@ -334,7 +343,7 @@
         }
       }
     }
-    else if (_type == 0) //Automode
+    else if (_type == 1) //Automode
     {
       #if LMDEBUG
       Serial.print ("LM Helper PredictedExposure on Auto Mode , PredictedExposure: ");

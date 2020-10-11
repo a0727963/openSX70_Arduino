@@ -1,6 +1,6 @@
 #include "Arduino.h"
 #include "open_SX70.h"
-//Version 10_10_2020_SONARF_BW_TCS3200 GTD and UDONGLE
+//Version 11_10_2020_SONARF_BW_TCS3200 GTD and UDONGLE
 ClickButton sw_S1(PIN_S1, S1Logic);
 
 int selector ;
@@ -33,7 +33,8 @@ int currentPicOnFocus; //dont know what this is for
 void setup() {//setup - Inizialize
 #if DEBUG
   Serial.begin (9600);
-  Serial.println("Welcome to openSX70 Version: 10_10_2020_SONAR_FBW_TCS3200 GTD and UDONGLE");
+  Serial.println("Welcome to openSX70 Version: 11_10_2020_SONAR_FBW_TCS3200 GTD and UDONGLE");
+  Serial.println("Magic Number: A100=400 | A600 = 150");
 #endif
   myDongle.initDS2408();
   init_EEPROM(); //#writes Default ISO to EEPROM
@@ -76,9 +77,6 @@ void loop() {//loop loop loop loop loop loop loop loop loop loop loop loop loop 
   #if SONAR
     preFocus();
   #endif
-  //printReadings();
-      //Serial.print("GTD: ");
-    //Serial.println(analogRead(PIN_GTD));
 
   //-----------Picture Taking Functions START-----------------
   noDongle();
@@ -91,7 +89,7 @@ void loop() {//loop loop loop loop loop loop loop loop loop loop loop loop loop 
   //---------- Picture Taking Functions END-----------------
   
   #if SONAR
-  unfocusing();
+    unfocusing();
   #endif
 }
 
@@ -132,17 +130,14 @@ void preFocus() {
 }
 
 void unfocusing(){
+  //delay(100);
   if ((digitalRead(PIN_S1F) == LOW) && (isFocused == 1)) { // S1F pressed  -- selftimer (doubleclick the red button) is not working this way
+    delay(100);
     openSX70.S1F_Unfocus(); //Not real nececarry to write it the whole time?!
     //currentPicOnFocus = currentPicture;
     isFocused = 0;
-    turnLedsOff(); //WHY?
+    turnLedsOff();
   }
-  /*if ((currentPicture != currentPicOnFocus)  && (isFocused == 1)){     //currentPicture should be after picture taking +1
-    openSX70.S1F_Unfocus();
-    isFocused = 0;
-    turnLedsOff(); //WHY?
-  }*/
 }
 #endif
 
@@ -486,9 +481,10 @@ void noDongle() {
   {
     savedISO = ReadISO();
     //LightMeterHelper(0);
-    LightMeterHelper(0); //Added 05.06.2020
+    LightMeterHelper(1); //Added 05.06.2020
     if (((sw_S1.clicks == -1) || (sw_S1.clicks == 1)) && openSX70.getGTD() == 1)
     {
+      LightMeterHelper(0);
       switch1 = 0; //necessary?
       openSX70.AutoExposure(savedISO);
       sw_S1.Reset();
@@ -496,6 +492,7 @@ void noDongle() {
     }
     if (sw_S1.clicks == 2 && openSX70.getGTD() == 1) //Doubleclick of Longpress the Red Button with no Dongle inserted
     {
+      LightMeterHelper(0);
       switch1 = 0; //necessary?
       openSX70.AutoExposure(savedISO);
       sw_S1.Reset();
@@ -655,10 +652,11 @@ void manualExposure() {
   //Manual Exposure
   if ((selector >= 0) && (selector < 12)) //Manual Exposure original
   {
-    LightMeterHelper(1);
+    LightMeterHelper(2);
     //if ((sw_S1.clicks == -1) || (sw_S1.clicks > 0))
     if (((sw_S1.clicks == -1) || (sw_S1.clicks > 0)) && openSX70.getGTD() == 1) // Checks if the Sonar is Gone that Distance -- is focused
     {
+      LightMeterHelper(0);
       switch2Function(0); //switch2Function Manual Mode
       sw_S1.Reset();
       openSX70.ManualExposure(selector);
@@ -672,10 +670,11 @@ void Auto600Exposure() {
   //Auto600
   if (((ShutterSpeed[selector]) == AUTO600)) //AUTO600
   {
-    LightMeterHelper(0);
+    LightMeterHelper(1);
     if (((sw_S1.clicks == -1) || (sw_S1.clicks > 0)) && openSX70.getGTD() == 1) // Checks if the Sonar is Gone that Distance -- is focused
       //if ((sw_S1.clicks == -1) || (sw_S1.clicks > 0))
     {
+      LightMeterHelper(0);
       switch2Function(1); //Switch 2 Function on AUTO600
       sw_S1.Reset();
       openSX70.AutoExposure(ISO_600);
@@ -689,9 +688,16 @@ void Auto100Exposure() {
   //Auto100
   if (((ShutterSpeed[selector]) == AUTO100)) //AUTO100 WHEEL
   {
-    LightMeterHelper(0);
+    LightMeterHelper(1);
+    if(sw_S1.clicks>=1){
+    Serial.print("S1T click value: ");
+    Serial.println(sw_S1.clicks);
+    }
+    //sw_S1.Reset();//test
+    
     if (((sw_S1.clicks == -1) || (sw_S1.clicks > 0)) && openSX70.getGTD() == 1) // Checks if the Sonar is Gone that Distance -- is focused
     {
+      LightMeterHelper(0);
       switch2Function(1); //Switch 2 Function on AUTO100
       sw_S1.Reset();
       openSX70.AutoExposure(ISO_SX70);
@@ -707,7 +713,7 @@ void LightMeterHelper(byte ExposureType) {
     if (helperstatus == true) {
       //if(metercount==2){ //Lightmeter only on every 3th Cycle of Loop
       meter_led(selector, ExposureType);
-      metercount = 0;
+      //metercount = 0;
       /*#if ADVANCEDEBUG
         Serial.print("Lightmeter Helper Status:");
         Serial.print(helperstatus);

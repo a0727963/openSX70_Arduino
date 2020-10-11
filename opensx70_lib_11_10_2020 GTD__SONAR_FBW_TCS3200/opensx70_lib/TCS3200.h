@@ -10,7 +10,7 @@
 
 #ifndef OPENSX70_TCS3200_H
   #define OPENSX70_TCS3200_H
-  
+  //Magicnumbers
   #define A100 400
   #define A600 150
   #define A400 200 //need to estimate the right Value for BW 600

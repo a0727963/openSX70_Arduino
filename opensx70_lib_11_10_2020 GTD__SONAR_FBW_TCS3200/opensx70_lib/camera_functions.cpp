@@ -36,10 +36,10 @@ int Camera::getGTD() {
   int aGTD[10];
   int dvdGTD = 0;
   //int aGTD = 0;
-  for (int i=0; i <= 4; i++){
+  for (int i=0; i <= 5; i++){
     aGTD[i] = analogRead(PIN_GTD);
   }
-  for (int i=0; i <= 4; i++){
+  for (int i=0; i <= 5; i++){
     if(aGTD[i] >= 360){
       if(aGTD[i]==aGTD[i-1]){
         dvdGTD++;
@@ -50,7 +50,7 @@ int Camera::getGTD() {
   Serial.println(dvdGTD);
   Serial.print("aGTD[0]: ");
   Serial.println(aGTD[0]);
-  if(dvdGTD>=3){
+  if(dvdGTD>=4){
     if(aGTD[0] >= 360){
       GTD = 1;
       return GTD;
@@ -66,19 +66,19 @@ int Camera::getGTD() {
 
 void Camera::S1F_Focus()
 {
+    int i=0;
     #if BASICDEBUG
       Serial.println ("Focus on");
     #endif
-    //analogWrite(PIN_S1F_FBW, 255);
     digitalWrite(PIN_S1F_FBW, HIGH);
-    //while(getGTD()!=1);
-    //{
-    //  Serial.println("Wait for GTD to go 1");
-    //}
-    /*Does not work right now.... no GTD Signal from Camera!
-     * while(digitalRead(!PIN_GTD)){
+    /*
+    while(getGTD()!=1); test
+    {
+      i++;
       Serial.println("Wait for GTD to go 1");
-      //Do nothing till GTD is 1 --> Fully Focused
+      Serial.print("getGTD iteration: ");
+      Serial.println(i);
+      digitalWrite(PIN_S1F_FBW, HIGH);
     }*/
     return;
 }
@@ -398,7 +398,7 @@ void Camera::ManualExposure(int _selector) {//ManualExposure
   #endif
 
   //sei(); //Interupts restart -- Take the Picture
-  Camera::shutterOPEN();  //SOLENOID OFF MAKES THE SHUTTER TO OPEN!
+  Camera::shutterOPEN();
   unsigned long initialMillis = millis();
   //delay (ShutterSpeedDelay);
   while (millis() <= (initialMillis + ShutterSpeedDelay))
@@ -419,7 +419,7 @@ void Camera::ManualExposure(int _selector) {//ManualExposure
 
 void Camera::AutoExposure(int _myISO)
 {
-    while(getGTD()!=1){
+    while(getGTD()!=1){ //Not sure if this is correct here!!!
     S1F_Focus();
     }
     Camera::ExposureStart();
@@ -462,7 +462,7 @@ void Camera::AutoExposure(int _myISO)
     #if LMDEBUG
     unsigned long shutterCloseTime = millis(); //Shutter Debug
     unsigned long exposureTime = shutterCloseTime - shutterOpenTime; //Shutter Debug
-    Serial.print("ExposureTime: ");
+    Serial.print("ExposureTime on Automode: ");
     Serial.println(exposureTime);
     #endif
     currentPicture++; 

@@ -90,8 +90,9 @@ void ClickButton::Update()
   }
   _lastState = _btnState;
 
+  /*
   // If the button released state is stable, report nr of clicks and start new cycle
-  if (!depressed && (now - _lastBounceTime) > multiclickTime)
+  if (!depressed && (now - _lastBounceTime) > multiclickTime) //Temporarily disabled
   {
     // positive count for released buttons
     clicks = _clickCount;
@@ -100,9 +101,10 @@ void ClickButton::Update()
     _clickCount = 0;
     if(clicks != 0){
       changed = true;
-    Serial.println("Single Click");
+      Serial.print("Single Click Clicks:");
+      Serial.println(clicks);
     }
-  }
+  }*/
 
   // Check for "long click"
   if (depressed && (now - _lastBounceTime > longClickTime))

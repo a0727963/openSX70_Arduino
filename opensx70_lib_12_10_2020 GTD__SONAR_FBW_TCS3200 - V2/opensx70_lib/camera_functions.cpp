@@ -17,6 +17,7 @@ Camera::Camera(uDongle *dongle)
 }
 //const uint8_t DEBOUNCECOUNT = 10;
 
+#if SONAR
 int Camera::getGTD() {
   //GTD = 1;
   int val = 15;
@@ -50,12 +51,13 @@ int Camera::getGTD() {
     }
   }
   //GTD = digitalRead(PIN_GTD);
+  return 0;
 }
 
 
 void Camera::S1F_Focus()
 {
-    int i=0;
+    //int i=0;
     #if BASICDEBUG
       Serial.println ("Focus on");
     #endif
@@ -63,7 +65,7 @@ void Camera::S1F_Focus()
     
     /*test(!getGTD());
     {
-      /*i++;
+      i++;
       Serial.println("Wait for GTD to go 1");
       Serial.print("getGTD iteration: ");
       Serial.println(i);
@@ -81,6 +83,8 @@ void Camera::S1F_Unfocus()
     digitalWrite (PIN_S1F_FBW, LOW);
     return;
 }
+#endif
+
 
 void Camera::shutterCLOSE()
 {
@@ -351,8 +355,8 @@ void Camera::ManualExposure(int _selector) {//ManualExposure
     return;
   }
   else{//Normal Expsoure
-    //currentPicture++; 
-    //WritePicture(currentPicture);
+    currentPicture++; 
+    WritePicture(currentPicture);
     #if SIMPLEDEBUG
       Serial.print("take single Picture on  Manual Mode");
       Serial.print(", current Picture: ");
@@ -401,21 +405,14 @@ void Camera::ManualExposure(int _selector) {//ManualExposure
     #endif
     Camera::FastFlash ();
   }
-  currentPicture++; 
-  WritePicture(currentPicture);
+  //currentPicture++; 
+  //WritePicture(currentPicture);
   Camera::ExposureFinish();
   return;
 }
 
 void Camera::AutoExposure(int _myISO)
 {
-    //S1F_Focus();
-    //while(getGTD()!=1){ //Not sure if this is correct here!!!
-    //S1F_Focus();
-    //Serial.println("getGTD");
-    //delay(100);
-    //}
-    //delay(200);
     Camera::ExposureStart();
     if ((_dongle->checkDongle() > 0) && (_dongle->switch1() == 1)){ //Switch 1 set ON --> Multiple Exposure Mode
       multipleExposure(1); //MX Auto 
@@ -425,8 +422,8 @@ void Camera::AutoExposure(int _myISO)
       return;
     }
     else{//Normal Expsoure
-      //currentPicture++; 
-      //WritePicture(currentPicture);
+      currentPicture++; 
+      WritePicture(currentPicture);
           #if SIMPLEDEBUG
              Serial.print("take a picture on Auto Mode with ISO: ");
              Serial.print(_myISO);
@@ -458,8 +455,8 @@ void Camera::AutoExposure(int _myISO)
       Serial.print("ExposureTime on Automode: ");
       Serial.println(exposureTime);
     #endif
-    currentPicture++; 
-    WritePicture(currentPicture);
+    //currentPicture++; 
+    //WritePicture(currentPicture);
     Camera::ExposureFinish();
     return;
 }
@@ -664,9 +661,9 @@ void Camera::multipleExposure(int exposureMode){
         Serial.println("MultiExp on Manual Mode");
       #endif
       if(multipleExposureMode == false){//First Run MultiExp
-        currentPicture++;
+        //currentPicture++;
         multipleExposureCounter++;
-        WritePicture(currentPicture);
+        //WritePicture(currentPicture);
         multipleExposureMode = true;
         #if MXDEBUG
           Serial.print("current Picture (MX): ");
@@ -681,9 +678,9 @@ void Camera::multipleExposure(int exposureMode){
       Serial.println("MultiExp on Auto Mode");
     #endif
     if(multipleExposureMode == false){//First Run MultiExp
-      currentPicture++;
+      //currentPicture++;
       multipleExposureCounter++;
-      WritePicture(currentPicture);
+      //WritePicture(currentPicture);
       multipleExposureMode = true;
       #if MXDEBUG
         Serial.print("First run MX Mode, current Picture (MX): ");
@@ -697,7 +694,13 @@ void Camera::multipleExposure(int exposureMode){
 
 void Camera::ExposureStart(){
   #if SONAR
-     //S1F_Focus();
+    //S1F_Focus();
+    while(getGTD()!=1){ //Not sure if this is nececcary!!!
+    S1F_Focus();
+    Serial.println("getGTD");
+    //delay(100);
+    }
+    //delay(200);
   #endif
 }
 

@@ -1,5 +1,5 @@
-#ifndef SX70_MEROE_PCB_H 
-  #define SX70_MEROE_PCB_H 
+#ifndef SX70_SONAR_FBW_PCB_H 
+  #define SX70_SONAR_FBW_PCB_H 
   #include "settings.h"
   //#include "Arduino.h"
   //#include "sx70_sonar_fbw_pcb.h"
@@ -8,7 +8,7 @@
   /*		see camera-sx70.h for proper explanation of each port
   		here we *ONLY* assign the value corresponding to the PCB
   		since there are differences in older PCBs.
-  		these ports are for MEROE arduino pcbs only		
+  		these ports are for SONAR FBW arduino pcbs only		
   */
   /*
   const uint8_t PIN_S1 = 12; 						//INPUT red button 

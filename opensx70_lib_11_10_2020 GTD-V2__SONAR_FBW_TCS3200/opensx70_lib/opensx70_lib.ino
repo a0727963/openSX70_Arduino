@@ -36,6 +36,7 @@ void setup() {//setup - Inizialize
   Serial.begin (9600);
   Serial.println("Welcome to openSX70 Version: 11_10_2020_SONAR_FBW_TCS3200 GTD-V2 and UDONGLE");
   Serial.println("Magic Number: A100=400 | A600 = 150");
+  Serial.println("scaling = 100% | filter = clear");
 #endif
   myDongle.initDS2408();
   init_EEPROM(); //#writes Default ISO to EEPROM

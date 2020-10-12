@@ -28,7 +28,7 @@ int Camera::getGTD() {
     aGTD[i] = analogRead(PIN_GTD);
   }
   for (int i=0; i <= val; i++){
-    if(aGTD[i] >= 360){
+    if(aGTD[i] >= 320){
       if(aGTD[i]==aGTD[i-1]){
         dvdGTD++;
       }
@@ -39,12 +39,12 @@ int Camera::getGTD() {
   Serial.print("aGTD[0]: ");
   Serial.println(aGTD[0]);
   if(dvdGTD>=(val-1)){
-    if(aGTD[0] >= 360){
+    if(aGTD[0] >= 320){
       GTD = 1;
       //delay(5000);
       Serial.println("GTD True");
       return GTD;
-    }else if(aGTD[0] <= 359)
+    }else if(aGTD[0] <= 319)
     {
       GTD = 0;
       return GTD;
@@ -695,11 +695,11 @@ void Camera::multipleExposure(int exposureMode){
 void Camera::ExposureStart(){
   #if SONAR
     //S1F_Focus();
-    while(getGTD()!=1){ //Not sure if this is nececcary!!!
+    //while(getGTD()!=1){ //Not sure if this is nececcary!!!
     S1F_Focus();
-    Serial.println("getGTD");
+    //Serial.println("getGTD");
     //delay(100);
-    }
+    //}
     //delay(200);
   #endif
 }

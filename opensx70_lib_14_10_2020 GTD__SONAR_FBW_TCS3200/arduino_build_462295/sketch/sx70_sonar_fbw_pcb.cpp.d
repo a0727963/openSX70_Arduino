@@ -1,0 +1,25 @@
+C:\Users\Hannes\AppData\Local\Temp\arduino_build_462295\sketch\sx70_sonar_fbw_pcb.cpp.o: \
+ C:\Users\Hannes\AppData\Local\Temp\arduino_build_462295\sketch\sx70_sonar_fbw_pcb.cpp \
+ C:\Users\Hannes\AppData\Local\Arduino15\packages\arduino\hardware\avr\1.8.3\cores\arduino/Arduino.h \
+ C:\Users\Hannes\AppData\Local\Arduino15\packages\arduino\hardware\avr\1.8.3\cores\arduino/binary.h \
+ C:\Users\Hannes\AppData\Local\Arduino15\packages\arduino\hardware\avr\1.8.3\cores\arduino/WCharacter.h \
+ C:\Users\Hannes\AppData\Local\Arduino15\packages\arduino\hardware\avr\1.8.3\cores\arduino/WString.h \
+ C:\Users\Hannes\AppData\Local\Arduino15\packages\arduino\hardware\avr\1.8.3\cores\arduino/HardwareSerial.h \
+ C:\Users\Hannes\AppData\Local\Arduino15\packages\arduino\hardware\avr\1.8.3\cores\arduino/Stream.h \
+ C:\Users\Hannes\AppData\Local\Arduino15\packages\arduino\hardware\avr\1.8.3\cores\arduino/Print.h \
+ C:\Users\Hannes\AppData\Local\Arduino15\packages\arduino\hardware\avr\1.8.3\cores\arduino/Printable.h \
+ C:\Users\Hannes\AppData\Local\Arduino15\packages\arduino\hardware\avr\1.8.3\cores\arduino/USBAPI.h \
+ C:\Users\Hannes\AppData\Local\Arduino15\packages\arduino\hardware\avr\1.8.3\cores\arduino/Arduino.h \
+ C:\Users\Hannes\AppData\Local\Arduino15\packages\arduino\hardware\avr\1.8.3\variants\eightanaloginputs/pins_arduino.h \
+ c:\users\hannes\appdata\local\arduino15\packages\arduino\hardware\avr\1.8.3\variants\standard\pins_arduino.h \
+ C:\Users\Hannes\AppData\Local\Temp\arduino_build_462295\sketch\sx70_sonar_fbw_pcb.h \
+ C:\Users\Hannes\AppData\Local\Temp\arduino_build_462295\sketch\settings.h \
+ C:\Users\Hannes\AppData\Local\Temp\arduino_build_462295\sketch\open_SX70.h \
+ C:\Users\Hannes\AppData\Local\Temp\arduino_build_462295\sketch\camera_functions.h \
+ C:\Users\Hannes\AppData\Local\Temp\arduino_build_462295\sketch\uDongle2.h \
+ C:\Users\Hannes\AppData\Local\Temp\arduino_build_462295\sketch\DS2408.h \
+ C:\Users\Hannes\AppData\Local\Temp\arduino_build_462295\sketch\OneWire.h \
+ C:\Users\Hannes\AppData\Local\Temp\arduino_build_462295\sketch\ClickButton.h \
+ C:\Users\Hannes\AppData\Local\Temp\arduino_build_462295\sketch\eeprom_init.h \
+ C:\Users\Hannes\AppData\Local\Temp\arduino_build_462295\sketch\meter.h \
+ C:\Users\Hannes\AppData\Local\Temp\arduino_build_462295\sketch\TCS3200.h

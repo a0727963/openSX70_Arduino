@@ -2,7 +2,7 @@
 #include "camera_functions.h"
 #include "meter.h"
 #include "open_sx70.h"
-#include "sx70_meroe_pcb.h"
+#include "sx70_sonar_fbw_pcb.h"
 //#include "Clickbutton.h"
 #include "settings.h"
 #include "uDongle2.h"
@@ -28,7 +28,7 @@ int Camera::getGTD() {
     aGTD[i] = analogRead(PIN_GTD);
   }
   for (int i=0; i <= val; i++){
-    if(aGTD[i] >= 360){
+    if(aGTD[i] >= 320){
       if(aGTD[i]==aGTD[i-1]){
         dvdGTD++;
       }
@@ -39,12 +39,12 @@ int Camera::getGTD() {
   Serial.print("aGTD[0]: ");
   Serial.println(aGTD[0]);
   if(dvdGTD>=(val-1)){
-    if(aGTD[0] >= 360){
+    if(aGTD[0] >= 320){
       GTD = 1;
       //delay(5000);
       Serial.println("GTD True");
       return GTD;
-    }else if(aGTD[0] <= 359)
+    }else if(aGTD[0] <= 319)
     {
       GTD = 0;
       return GTD;
@@ -171,7 +171,7 @@ void Camera::darkslideEJECT()
 void Camera::DongleFlashNormal()
 {
   pinMode(PIN_S2, OUTPUT);
-  digitalWrite(PIN_SOL2, LOW); //So FF recognizes the flash as such
+  digitalWrite(PIN_SOL2, LOW); //So FFA recognizes the flash as such
   digitalWrite(PIN_FF, HIGH);   //FLASH TRIGGERING
   delay (1);                 //FLASH TRIGGERING
   digitalWrite(PIN_FF, LOW);    //FLASH TRIGGERING
@@ -204,10 +204,10 @@ void DongleFlashF8 ()
      //                  delay (66);
      delay (80);
      Write_DS2408_PIO (7, 1); // this is for dongle (jack flash)
-     //                  digitalWrite(FF, HIGH); //this is for in-camera flash
+     //                  digitalWrite(FFA, HIGH); //this is for in-camera flash
      delay (1);
      //                  analogWrite (Solenoid2,0);
-     //                  digitalWrite(FF, LOW);
+     //                  digitalWrite(FFA, LOW);
      Write_DS2408_PIO (7, 0);
      delay (10u);
      shutterCLOSE();
@@ -397,12 +397,7 @@ void Camera::ManualExposure(int _selector) {//ManualExposure
   //delay (ShutterSpeedDelay);
   while (millis() <= (initialMillis + ShutterSpeedDelay))
     ;
-  #if LMDEBUG
-      unsigned long shutterCloseTime = millis(); //Shutter Debug
-      unsigned long exposureTime = shutterCloseTime - initialMillis; //Shutter Debug
-      Serial.print("ExposureTime on Manualmode: ");
-      Serial.println(exposureTime);
-  #endif
+
   if (_selector >= 3) // changed the flash selection
   {
     #if SIMPLEDEBUG
@@ -449,14 +444,14 @@ void Camera::AutoExposure(int _myISO)
     meter_init();
     meter_integrate();
     Camera::shutterOPEN ();
-    #if EXPDEBUG
-      unsigned long shutterOpenTime = millis(); //Shutter Debug
+    #if LMDEBUG
+    unsigned long shutterOpenTime = millis(); //Shutter Debug
     #endif
     while (meter_update() == false){
     }
-    #if EXPDEBUG
+    #if LMDEBUG
       unsigned long shutterCloseTime = millis(); //Shutter Debug
-      unsigned long exposureTime = (shutterCloseTime - shutterOpenTime); //Shutter Debug
+      unsigned long exposureTime = shutterCloseTime - shutterOpenTime; //Shutter Debug
       Serial.print("ExposureTime on Automode: ");
       Serial.println(exposureTime);
     #endif
@@ -531,13 +526,13 @@ void Camera::FlashBAR() //FlashBAR Testprocedure
   delay (1);                      //FLASH TRIGGERING
   digitalWrite(PIN_FF, LOW);     //FLASH TRIGGERING
   //digitalWrite(A7, LOW);
-  Serial.println("FF HIGH");
+  Serial.println("FFA HIGH");
   //analogWrite(4, 255);
 
  // delay (2);
 
   //analogWrite (PIN_SOL2, 0);
-  Serial.println("FF LOw");
+  Serial.println("FFA LOw");
   
   //analogWrite(4, 0);
 
@@ -700,11 +695,11 @@ void Camera::multipleExposure(int exposureMode){
 void Camera::ExposureStart(){
   #if SONAR
     //S1F_Focus();
-    while(getGTD()!=1){ //Not sure if this is nececcary!!!
+    //while(getGTD()!=1){ //Not sure if this is nececcary!!!
     S1F_Focus();
-    Serial.println("getGTD");
+    //Serial.println("getGTD");
     //delay(100);
-    }
+    //}
     //delay(200);
   #endif
 }
@@ -780,7 +775,7 @@ void Camera::FastFlash()
   #endif
   pinMode(PIN_S2, OUTPUT);
   //     delay (2);
-  digitalWrite (PIN_S2, LOW);     //So FF recognizes the flash as such
+  digitalWrite (PIN_S2, LOW);     //So FFA recognizes the flash as such
   //     delay (2);
   digitalWrite(PIN_FF, HIGH);    //FLASH TRIGGERING
   delay (1);                      //FLASH TRIGGERING

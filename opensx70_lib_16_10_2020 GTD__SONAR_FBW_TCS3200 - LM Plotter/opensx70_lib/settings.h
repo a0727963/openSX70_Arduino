@@ -10,7 +10,7 @@
   #define BASICDEBUG 0 // Debug of Basic Camera Functions
   #define MXDEBUG 0 // Multiple Exposure Debug
   #define LMDEBUG 1 //Lightmeter Debug
-  #define EXPDEBUG 1 //Shutter Speed Debug
+  #define ALMDEBUG 0 //LM Plotter Automode
   #define LMHELPERDEBUG 0 //Lightmeter Debug
   #define ROTARYDEBUG 0 //Rotaryswitch on Dongle Debug
   //----------------------END DEBUG OPTIONS------------------------------
@@ -21,9 +21,9 @@
   //S1Logic LOW = Alphas, Meroë, Edwin
   //#define S1Logic HIGH //= Sonar 
   //Start Model Select - Only define ALPHA or SONAR!!!!!
-  #define S1Logic LOW
-  //#define SONAR 1
-  #define ALPHA 1
+  #define S1Logic HIGH
+  #define SONAR 1
+  //#define ALPHA 1
   //End Model Select
   #define ORIGAMI 0
   #define ORIGAMIV1 0 //V1 Version of Origami with inverted Rotaryswitch

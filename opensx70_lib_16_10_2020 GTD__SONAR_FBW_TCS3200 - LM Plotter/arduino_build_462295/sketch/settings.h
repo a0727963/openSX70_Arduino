@@ -5,12 +5,11 @@
   #define LIGHMETER_HELPER 1
   //LIGHMETER_HELPER 0  NO helper, 1 for VE helper, 2 future dongle helper
   #define DEBUG 1
-  #define SIMPLEDEBUG 0 //Simple Debug On 1 - Off 0
+  #define SIMPLEDEBUG 1 //Simple Debug On 1 - Off 0
   #define ADVANCEDEBUG 0 //Simple Debug On 1 - Off 0
-  #define BASICDEBUG 0 // Debug of Basic Camera Functions
+  #define BASICDEBUG 1 // Debug of Basic Camera Functions
   #define MXDEBUG 0 // Multiple Exposure Debug
-  #define LMDEBUG 1 //Lightmeter Debug
-  #define EXPDEBUG 1 //Shutter Speed Debug
+  #define LMDEBUG 0 //Lightmeter Debug
   #define LMHELPERDEBUG 0 //Lightmeter Debug
   #define ROTARYDEBUG 0 //Rotaryswitch on Dongle Debug
   //----------------------END DEBUG OPTIONS------------------------------
@@ -21,9 +20,9 @@
   //S1Logic LOW = Alphas, Meroë, Edwin
   //#define S1Logic HIGH //= Sonar 
   //Start Model Select - Only define ALPHA or SONAR!!!!!
-  #define S1Logic LOW
-  //#define SONAR 1
-  #define ALPHA 1
+  #define S1Logic HIGH
+  #define SONAR 1
+  //#define ALPHA 1
   //End Model Select
   #define ORIGAMI 0
   #define ORIGAMIV1 0 //V1 Version of Origami with inverted Rotaryswitch

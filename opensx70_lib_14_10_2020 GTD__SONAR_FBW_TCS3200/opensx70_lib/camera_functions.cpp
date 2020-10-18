@@ -361,14 +361,15 @@ void Camera::ManualExposure(int _selector) {//ManualExposure
       Serial.print("take single Picture on  Manual Mode");
       Serial.print(", current Picture: ");
       Serial.println(currentPicture);
-   #endif
+    #endif
   }
   Camera::shutterCLOSE ();
   delay (100); //added to fix bad photos WITH LESS delay
   Camera::mirrorUP();   //Motor Starts: MIRROR COMES UP!!!
+  pinMode(PIN_S3, INPUT_PULLUP); // GND
   while (digitalRead(PIN_S3) != HIGH){
     //waiting for S3 to OPEN
-    //Serial.println("wait for s3");
+    Serial.println("wait for s3");
   }
   delay (YDelay);
   // startCounterCalibration();
@@ -434,6 +435,7 @@ void Camera::AutoExposure(int _myISO)
     meter_set_iso(_myISO); //Set the correct compare Table for the set ISO
     Camera::shutterCLOSE();
     Camera::mirrorUP();   //Motor Starts: MIRROR COMES UP!!!
+    pinMode(PIN_S3, INPUT_PULLUP); // GND
     while (digitalRead(PIN_S3) != HIGH){
       #if ADVANCEDEBUG
         Serial.println("Wait for S3 to open");
@@ -444,12 +446,12 @@ void Camera::AutoExposure(int _myISO)
     meter_init();
     meter_integrate();
     Camera::shutterOPEN ();
-    #if LMDEBUG
+    #if EXPDEBUG
     unsigned long shutterOpenTime = millis(); //Shutter Debug
     #endif
     while (meter_update() == false){
     }
-    #if LMDEBUG
+    #if EXPDEBUG
       unsigned long shutterCloseTime = millis(); //Shutter Debug
       unsigned long exposureTime = shutterCloseTime - shutterOpenTime; //Shutter Debug
       Serial.print("ExposureTime on Automode: ");
@@ -473,6 +475,7 @@ void Camera::FlashBAR() //FlashBAR
   analogWrite(PIN_SOL2, 255);
   Camera::shutterCLOSE ();
   Camera::mirrorUP();   //Motor Starts: MIRROR COMES UP!!!
+  pinMode(PIN_S3, INPUT_PULLUP); // GND
   while (digitalRead(PIN_S3) != HIGH)            //waiting for S3 to OPEN
     ;
   analogWrite (PIN_SOL2, 130);
@@ -560,6 +563,7 @@ void Camera::ShutterB()
   //digitalWrite(PIN_LED1, LOW);
   Camera::shutterCLOSE ();
   Camera::mirrorUP();   //Motor Starts: MIRROR COMES UP!!!
+  pinMode(PIN_S3, INPUT_PULLUP); // GND
   while (digitalRead(PIN_S3) != HIGH){            //waiting for S3 to OPEN˚
     //Serial.println("Wait for s3 to open (HIGH)");
     //  while (openSX70.DebouncedRead(PIN_S3) != HIGH)            //waiting for S3 to OPEN˚

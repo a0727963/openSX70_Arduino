@@ -19,10 +19,10 @@ int activeISO;
 //static int checkedcount;
 static int inizialized = 0;
 static int metercount;
-#if ALPHA
+//#if ALPHA
 //bool GTD = 1; //For non Sonar Models
-bool isFocused = 1; //For non Sonar Models
-#endif
+//bool isFocused = 1; //For non Sonar Models
+//#endif
 #if SONAR
 bool FT = 0;
 bool S1F = 0;
@@ -33,10 +33,10 @@ int currentPicOnFocus; //dont know what this is for
 void setup() {//setup - Inizialize
 #if DEBUG
   Serial.begin (9600);
-  Serial.println("Welcome to openSX70 Version: 13_10_2020_EDWIN_TCS3200 V2 and UDONGLE");
-  Serial.println("Magic Number: A100=320 | A600 = 135");
+  Serial.println("Welcome to openSX70 Version: 16_10_2020_SONAR_FBW_TCS3200 GTD and UDONGLE - LM Plotter");
+  Serial.println("Magic Number: A100=400 | A600 = 150");
   Serial.println("scaling = 100% | filter = clear");
-  //Serial.println("16==2000, 20, 23, 25, 30, 35, 45, 55, 166, 302, 600, 1100, POST, POSB, AUTO600, AUTO100");
+  //Serial.println("16=2000, 20=1000, 23=500, 25=250, 30=125, 35=60, 45=30, 55=15, 166=8, 302=4, 600=2, 1100=1, POST, POSB, AUTO600, AUTO100");
 #endif
   myDongle.initDS2408();
   init_EEPROM(); //#writes Default ISO to EEPROM
@@ -69,7 +69,7 @@ void loop() {//loop loop loop loop loop loop loop loop loop loop loop loop loop 
   prevDongle = nowDongle;
 
   #if SONAR
-  if(isFocused != 1){
+    if(isFocused != 1){
   #endif
     nowDongle = myDongle.checkDongle();
     currentPicture = ReadPicture();
@@ -81,7 +81,7 @@ void loop() {//loop loop loop loop loop loop loop loop loop loop loop loop loop 
     DongleInsertion(); //State when Dongle insertion is happening
 
   #if SONAR
-  }
+    }
   #endif
   
   #if SONAR
@@ -125,7 +125,7 @@ void printReadings() {
   Serial.print(" | S1F: ");
   Serial.print(digitalRead(PIN_S1F));
   Serial.print(" | FT: ");
-  Serial.print(digitalRead(PIN_FT));
+  Serial.print(analogRead(PIN_FT));
   Serial.print(" | FF: ");
   Serial.println(digitalRead(PIN_FF));
   return;

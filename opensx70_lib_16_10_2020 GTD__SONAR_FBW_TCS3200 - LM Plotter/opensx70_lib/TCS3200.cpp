@@ -5,16 +5,8 @@
   uint16_t outputCompare = A100;
   
   //LM is pin 5
-  #if SONAR
   const uint8_t TCS3200_S1_Pin = 9;
   const uint8_t TCS3200_S3_Pin = 6;
-  #endif
-
-  #if ALPHA
-  const uint8_t PIN_OE = 9;         //Pin 13 on Meroe2  (PB1-OC1A)
-  const uint8_t TCS3200_S1_Pin = 2; //Pin 32 on Meroe2  (PD2-INT0)
-  const uint8_t TCS3200_S3_Pin = 6; //Pin 10 on Meroe2 (PD6-AIN0)
-  #endif
   
   void meter_init(){
     tcs3200_init();
@@ -27,8 +19,7 @@
     //TCS3200_S2_Pin = HIGH(3.3V) Jumper on PCB
     //TCS3200_S3_Pin = On Pin 6 ATMEGA
     //TCS3200_OE_Pin = LOW(GND) on PCB
-
-    #if SONAR
+    
     //pinMode(PIN_OE, OUTPUT); //Output Enable (OE) pin to enable/disable the Lightsensor
     //digitalWrite(PIN_OE, LOW);
     pinMode(TCS3200_S1_Pin, OUTPUT); //Output frequency scaling selection input
@@ -40,18 +31,6 @@
     //S2 & S0 should be high can be modified via jumper in PCB 
     //digitalWrite(S1_Pin, HIGH); //scaling LOW = 20% | HIGH = 100%
     //digitalWrite(S3_Pin, LOW); //filter LOW = clear | HIGH = green
-    #endif
-
-    #if ALPHA
-    pinMode(PIN_OE, OUTPUT); //Output Enable (OE) pin to enable/disable the Lightsensor
-    pinMode(TCS3200_S1_Pin, OUTPUT); //Output frequency scaling selection input
-    pinMode(TCS3200_S3_Pin, OUTPUT); //Photodiode type selection input
-    digitalWrite(PIN_OE, LOW);
-      //S2 (Photodiode type selection pin) & S0 (Output frequency scaling selection pin) should be high,
-      // both can be modified via jumper in PCB 
-    digitalWrite(TCS3200_S1_Pin, HIGH); //scaling LOW = 20% | HIGH = 100%
-    digitalWrite(TCS3200_S3_Pin, LOW); //filter LOW = clear | HIGH = green
-    #endif
   
     cli(); //Stop all Interupts
   
@@ -140,7 +119,7 @@
       static unsigned long previousMillis = 0;
       static bool measuring = false;
       unsigned long PredExp;
-      meter_set_iso(_myISO); //set outputcompare Value for the selected ISO -- where the Timer is counting Pulses from Lightsensor to
+      meter_set_iso(_myISO); //set outputcompare Value for the selected ISO -- the Timer is counting Pulses from Lightsensor to this outputcompare Value
     
       if (!measuring)
       {
@@ -157,8 +136,8 @@
           measuring = false;
           PredExp = (((float)myMillis) / ((float) counter)) * (float)outputCompare;
           #if LMDEBUG
-            //Serial.print("pr mil: ");
-            //Serial.print(previousMillis);
+            Serial.print("pr mil: ");
+            Serial.print(previousMillis);
             Serial.print(" mil: ");
             Serial.print(myMillis);
             Serial.print(" _interval: ");
@@ -169,6 +148,9 @@
             Serial.print(outputCompare);
             Serial.print(" PredExp: ");
             Serial.println(PredExp);
+          #endif
+          #if ALMDEBUG
+            //Serial.println(counter);
           #endif
           PredExp = PredExp + ShutterConstant;
           if(PredExp>44250){ //bigger then a reliable Value | doesnt know if its needed
@@ -211,13 +193,23 @@
   ISR(TIMER1_COMPA_vect){ // ISR for complete conversion. Should set a flag read by the main loop.
     TIMSK1 = 0;
     integrationFinished = 1;
-    #if LMDEBUG
-      Serial.print("Integration finished CTC ");
-      Serial.print("Counter1 Time: ");
-      Serial.println(TCNT1);
+    #if ALMDEBUG
+      //Serial.print("Integration finished CTC ");
+      //Serial.print("Counter1 Time: ");
+      //Serial.println(TCNT1);
     #endif
     // function / flag.
   }
+
+  volatile   unsigned int timer1CounterValue;
+
+ISR (TIMER1_CAPT_vect)
+  {
+  timer1CounterValue = ICR1;  
+  Serial.println(ICR1);
+  // possibly other stuff
+  }
+
   
   ISR(TIMER1_OVF_vect){//Timer overflow
     #if LMDEBUG

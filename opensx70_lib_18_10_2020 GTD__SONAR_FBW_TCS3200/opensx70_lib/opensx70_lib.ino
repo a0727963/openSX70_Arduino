@@ -369,6 +369,7 @@ void switch2Function(int mode) {
   {
     if (mode == 0) {
       openSX70.S1F_Unfocus();
+      openSX70.SelfTimerMUP();
       digitalWrite(PIN_LED2, LOW);
       digitalWrite(PIN_LED1, LOW);
       openSX70.BlinkTimerDelay (GREEN, RED, 10);
@@ -378,6 +379,7 @@ void switch2Function(int mode) {
     }
     else if (mode == 1) {
       openSX70.S1F_Unfocus();
+      openSX70.SelfTimerMUP();
       digitalWrite(PIN_LED2, LOW);
       digitalWrite(PIN_LED1, LOW);
       openSX70.BlinkTimerDelay (GREEN, RED, 10);
@@ -386,6 +388,7 @@ void switch2Function(int mode) {
       delay(2000);
     } else if (mode == 2) {
       openSX70.S1F_Unfocus();
+      openSX70.SelfTimerMUP();
       digitalWrite(PIN_LED2, LOW);
       digitalWrite(PIN_LED1, LOW);
       openSX70.BlinkTimerDelay (GREEN, RED, 10);
@@ -394,6 +397,7 @@ void switch2Function(int mode) {
       delay(2000);
     } else if (mode == 3) {
       openSX70.S1F_Unfocus();
+      openSX70.SelfTimerMUP();
       Serial.println("Selftimer");
       delay (10000); //NoDongleMode
       //preFocus();

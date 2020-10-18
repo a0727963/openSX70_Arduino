@@ -9,6 +9,7 @@
       void S1F_Unfocus();
       void S1F_Focus();
       int S1F_Focus1();
+      void SelfTimerMUP();
       void shutterCLOSE();
       void shutterOPEN();
       void mirrorDOWN();

@@ -101,6 +101,11 @@ void Camera::S1F_Unfocus()
 }
 #endif
 
+void Camera::SelfTimerMUP(){
+    Serial.println("Selftimer preMirror Up");
+    Camera::mirrorUP();
+}
+
 
 void Camera::shutterCLOSE()
 {
@@ -163,7 +168,7 @@ void Camera::mirrorUP()
   //while (digitalRead(PIN_S5) != HIGH)            //waiting for S5 to OPEN do NOTHING
   while (DebouncedRead(PIN_S5) != HIGH)
   {
-    //wait for S% to go low
+    //wait for S5 to go low
   }
   //S5 OPENS
   //S1 MAY BE OPEN NOW (DON'T KNOW HOW TO DO THIS YET)

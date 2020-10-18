@@ -375,7 +375,7 @@ void switch2Function(int mode) {
       openSX70.BlinkTimerDelay (GREEN, RED, 10);
       //preFocus();
       openSX70.S1F_Focus();
-      delay(2000);
+      delay(1000);
     }
     else if (mode == 1) {
       openSX70.S1F_Unfocus();
@@ -385,7 +385,7 @@ void switch2Function(int mode) {
       openSX70.BlinkTimerDelay (GREEN, RED, 10);
       //preFocus();
       openSX70.S1F_Focus();
-      delay(2000);
+      delay(1000);
     } else if (mode == 2) {
       openSX70.S1F_Unfocus();
       openSX70.SelfTimerMUP();
@@ -394,7 +394,7 @@ void switch2Function(int mode) {
       openSX70.BlinkTimerDelay (GREEN, RED, 10);
       //preFocus();
       openSX70.S1F_Focus();
-      delay(2000);
+      delay(1000);
     } else if (mode == 3) {
       openSX70.S1F_Unfocus();
       openSX70.SelfTimerMUP();
@@ -402,7 +402,7 @@ void switch2Function(int mode) {
       delay (10000); //NoDongleMode
       //preFocus();
       openSX70.S1F_Focus();
-      delay(2000);
+      delay(1000);
     }
     else {
       //return false;

@@ -12,7 +12,7 @@
   #define OPENSX70_TCS3200_H
   //Magicnumbers
   #define A100 230 //400
-  #define A600 80 //150
+  #define A600 85 //150
   #define A400 200 //need to estimate the right Value for BW 600
   
   /* These functions are called by the main loop.

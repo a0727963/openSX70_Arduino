@@ -34,9 +34,9 @@ void setup() {//setup - Inizialize
 #if DEBUG
   Serial.begin (9600);
   Serial.println("Welcome to openSX70 Version: 13_10_2020_EDWIN_TCS3200 V2 and UDONGLE");
-  Serial.println("Magic Number: A100=320 | A600 = 135");
+  Serial.println("Magic Number: A100=230 | A600 = 80");
   Serial.println("scaling = 100% | filter = clear");
-  //Serial.println("16==2000, 20, 23, 25, 30, 35, 45, 55, 166, 302, 600, 1100, POST, POSB, AUTO600, AUTO100");
+  //Serial.println("16 -> 1/2000, 20 -> 1/1000, 23 -> 1/500, 25 -> 1/250, 30-> 1/125, 35-> 1/60, 45-> 1/30, 55-> 1/15, 166-> 1/8, 302-> 1/4, 600-> 1/2, 1100-> 1/1, POST, POSB, AUTO600, AUTO100");
 #endif
   myDongle.initDS2408();
   init_EEPROM(); //#writes Default ISO to EEPROM

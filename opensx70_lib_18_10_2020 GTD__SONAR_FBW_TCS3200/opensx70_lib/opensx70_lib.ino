@@ -33,8 +33,8 @@ int currentPicOnFocus; //dont know what this is for
 void setup() {//setup - Inizialize
 #if DEBUG
   Serial.begin (9600);
-  Serial.println("Welcome to openSX70 Version: 18_10_2020_SONAR_FBW_TCS3200 GTD and UDONGLE - LM Plotter");
-  Serial.println("Magic Number: A100=350 | A600 = 150");
+  Serial.println("Welcome to openSX70 Version: 18_10_2020_SONAR_FBW_TCS3200 GTD and UDONGLE - Focus on Selftimer End");
+  Serial.println("Magic Number: A100=400 | A600 = 150");
   Serial.println("scaling = 100% | filter = clear");
   //Serial.println("16=2000, 20=1000, 23=500, 25=250, 30=125, 35=60, 45=30, 55=15, 166=8, 302=4, 600=2, 1100=1, POST, POSB, AUTO600, AUTO100");
 #endif
@@ -372,29 +372,33 @@ void switch2Function(int mode) {
       digitalWrite(PIN_LED2, LOW);
       digitalWrite(PIN_LED1, LOW);
       openSX70.BlinkTimerDelay (GREEN, RED, 10);
-      preFocus();
-      delay(1000);
+      //preFocus();
+      openSX70.S1F_Focus();
+      delay(2000);
     }
     else if (mode == 1) {
       openSX70.S1F_Unfocus();
       digitalWrite(PIN_LED2, LOW);
       digitalWrite(PIN_LED1, LOW);
       openSX70.BlinkTimerDelay (GREEN, RED, 10);
-      preFocus();
-      delay(1000);
+      //preFocus();
+      openSX70.S1F_Focus();
+      delay(2000);
     } else if (mode == 2) {
       openSX70.S1F_Unfocus();
       digitalWrite(PIN_LED2, LOW);
       digitalWrite(PIN_LED1, LOW);
       openSX70.BlinkTimerDelay (GREEN, RED, 10);
-      preFocus();
-      delay(1000);
+      //preFocus();
+      openSX70.S1F_Focus();
+      delay(2000);
     } else if (mode == 3) {
       openSX70.S1F_Unfocus();
       Serial.println("Selftimer");
       delay (10000); //NoDongleMode
-      preFocus();
-      delay(1000);
+      //preFocus();
+      openSX70.S1F_Focus();
+      delay(2000);
     }
     else {
       //return false;

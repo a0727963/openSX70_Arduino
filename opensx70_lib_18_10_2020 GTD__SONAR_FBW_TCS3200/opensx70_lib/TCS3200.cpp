@@ -94,7 +94,7 @@
       {
         unsigned long counter = TCNT1; //Timer count Value
         measuring = false;
-        PredExp = (((float)myMillis) / ((float) counter)) * (float)outputCompare;
+        PredExp = round((((float)myMillis) / ((float) counter)) * (float)outputCompare);
         PredExp = PredExp + ShutterConstant;
         if(PredExp>40000){ //bigger then a reliable Value | doesnt know if its needed
             #if LMDEBUG
@@ -134,7 +134,7 @@
         {
           unsigned long counter = TCNT1; //Timer count Value
           measuring = false;
-          PredExp = round((((float)myMillis) / ((float)counter)) * (float)outputCompare);
+          PredExp = (((float)myMillis) / ((float) counter)) * (float)outputCompare;
           #if LMDEBUG
             Serial.print("pr mil: ");
             Serial.print(previousMillis);

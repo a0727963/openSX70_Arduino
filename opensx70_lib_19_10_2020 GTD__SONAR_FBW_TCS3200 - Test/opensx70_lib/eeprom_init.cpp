@@ -26,7 +26,8 @@ int ReadISO()
 }
 
 void init_EEPROM() {
-  char initJP[2];
+  int initJP[2];
+  //char initJP[2];
   initJP[0] = EEPROM.read(0);
   initJP[1] = EEPROM.read(1);
   //int currentPicture = 1;
@@ -34,7 +35,11 @@ void init_EEPROM() {
   if (initJP[0] != 255 || initJP[1] != 255)
   {
     #if SIMPLEDEBUG
-        Serial.println("Initializing EEPROM....");
+        Serial.print("Initializing EEPROM....");
+        Serial.print("initJP[0] = ");
+        Serial.print(initJP[0]);
+        Serial.print("initJP[1] = ");
+        Serial.println(initJP[0]);
 
     #endif
       EEPROM.update(0, 255);

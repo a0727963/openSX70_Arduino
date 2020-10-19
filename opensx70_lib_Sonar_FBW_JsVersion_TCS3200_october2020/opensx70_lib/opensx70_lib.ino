@@ -657,7 +657,7 @@ void flashOperationMode(){
     }
     if (sw_S1.clicks == 2)
     {
-      switch2Function(3); //Switch Two Function in Flash Mode
+      //switch2Function(3); //Switch Two Function in Flash Mode
       openSX70.FlashBAR(switch1, switch2);
       sw_S1.Reset();
       checkFilmCount();

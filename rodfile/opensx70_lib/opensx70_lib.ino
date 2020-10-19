@@ -42,7 +42,7 @@ void setup() {//setup - Inizialize
   #if DEBUG
     Serial.begin (9600);
   #endif
-  Serial.begin (9600); //remove later
+  //Serial.begin (9600); //remove later
   myDongle.initDS2408();
   init_EEPROM(); //#writes Default ISO to EEPROM
   // (These are default if not set, but changeable for convenience)

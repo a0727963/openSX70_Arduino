@@ -17,8 +17,8 @@ byte lightmeterHelper = true;
 //int ShutterSpeed[] = { 16, 20, 23, 25, 30, 35, 45, 55, 166, 302, 600, POST, POSB, AUTO600, AUTO600BW, AUTO100 };  //SANTI DONGLE WHEEL 600BW
 //NEW WHEEL ANALOGUEDONGLE
 
-int ShutterSpeed[] = { 7, 9, 11, 12, 14, 16, 20, 25, 75, 136, 270, 495, POST, POSB, AUTO600, AUTO100 };  //SANTI DONGLE WHEEL and OPTODONGLE
-//int ShutterSpeed[] = { 16, 20, 23, 25, 30, 35, 45, 55, 166, 302, 600, 1100, POST, POSB, AUTO600, AUTO100 };  //SANTI DONGLE WHEEL and OPTODONGLE
+//int ShutterSpeed[] = { 7, 9, 11, 12, 14, 16, 20, 25, 75, 136, 270, 495, POST, POSB, AUTO600, AUTO100 };  //SANTI DONGLE WHEEL and OPTODONGLE and manipulated Sol1 Valve
+int ShutterSpeed[] = { 16, 20, 23, 25, 30, 35, 45, 55, 166, 302, 600, 1100, POST, POSB, AUTO600, AUTO100 };  //SANTI DONGLE WHEEL and OPTODONGLE
 //OPTION line above are the wheel "raw" speeds (have to keep in mind smaller time = smaller aperture)
 // this are the "SLOTS":
 //int ShutterSpeed[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E, F };

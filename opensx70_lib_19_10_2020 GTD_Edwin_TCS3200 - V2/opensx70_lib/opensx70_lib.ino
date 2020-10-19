@@ -33,7 +33,7 @@ int currentPicOnFocus; //dont know what this is for
 void setup() {//setup - Inizialize
 #if DEBUG
   Serial.begin (9600);
-  Serial.println("Welcome to openSX70 Version: 19_10_2020_EDWIN_TCS3200 V2 and UDONGLE");
+  Serial.println("Welcome to openSX70 Version: 19_10_2020_EDWIN_TCS3200 V2 and UDONGLE - SOL2 Test");
   Serial.print("Magic Number: A100=");
   Serial.print(A100);
   Serial.print("| A600 =");

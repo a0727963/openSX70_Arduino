@@ -19,10 +19,10 @@ int activeISO;
 //static int checkedcount;
 static int inizialized = 0;
 static int metercount;
-#if ALPHA
+//#if ALPHA
 //bool GTD = 1; //For non Sonar Models
-bool isFocused = 1; //For non Sonar Models
-#endif
+//bool isFocused = 1; //For non Sonar Models
+//#endif
 #if SONAR
 bool FT = 0;
 bool S1F = 0;
@@ -33,13 +33,13 @@ int currentPicOnFocus; //dont know what this is for
 void setup() {//setup - Inizialize
 #if DEBUG
   Serial.begin (9600);
-  Serial.println("Welcome to openSX70 Version: 19_10_2020_EDWIN_TCS3200 V2 and UDONGLE - SOL2 Test");
+  Serial.println("Welcome to openSX70 Version: 21_10_2020_SONAR_FBW-2_TCS3200 GTD and UDONGLE");
   Serial.print("Magic Number: A100=");
   Serial.print(A100);
   Serial.print("| A600 =");
-  Serial.println(A600);
-  Serial.println("scaling = 100% | filter = clear");
-  //Serial.println("16 -> 1/2000, 20 -> 1/1000, 23 -> 1/500, 25 -> 1/250, 30-> 1/125, 35-> 1/60, 45-> 1/30, 55-> 1/15, 166-> 1/8, 302-> 1/4, 600-> 1/2, 1100-> 1/1, POST, POSB, AUTO600, AUTO100");
+  Serial.print(A600);
+  Serial.print(" scaling = 100% | filter = clear");
+  //Serial.println("16=2000, 20=1000, 23=500, 25=250, 30=125, 35=60, 45=30, 55=15, 166=8, 302=4, 600=2, 1100=1, POST, POSB, AUTO600, AUTO100");
 #endif
   myDongle.initDS2408();
   init_EEPROM(); //#writes Default ISO to EEPROM
@@ -51,17 +51,19 @@ void setup() {//setup - Inizialize
   metercount = 0; //For the Lightmeter Helper Skipping Function
   checkFilmCount();
   inizialized++;
-
+  pinMode(PIN_S5, INPUT_PULLUP); // GND
   if (digitalRead(PIN_S5) != LOW)
   {
     openSX70.mirrorDOWN();
-    #if SIMPLEDEBUG
-        Serial.println ("Initialize: mirrorDOWN");
-    #endif
+    //#if SIMPLEDEBUG
+    //    Serial.println ("Initialize: mirrorDOWN");
+    //#endif
   }
   #if SIMPLEDEBUG
     Serial.print("Inizialized: ");
     Serial.println(inizialized);
+    Serial.print("ISO active");
+    Serial.println(activeISO);
   #endif
 }
 
@@ -73,7 +75,7 @@ void loop() {//loop loop loop loop loop loop loop loop loop loop loop loop loop 
   prevDongle = nowDongle;
 
   #if SONAR
-  if(isFocused != 1){
+    if(isFocused == 0){
   #endif
     nowDongle = myDongle.checkDongle();
     currentPicture = ReadPicture();
@@ -85,7 +87,7 @@ void loop() {//loop loop loop loop loop loop loop loop loop loop loop loop loop 
     DongleInsertion(); //State when Dongle insertion is happening
 
   #if SONAR
-  }
+    }
   #endif
   
   #if SONAR
@@ -93,15 +95,14 @@ void loop() {//loop loop loop loop loop loop loop loop loop loop loop loop loop 
   #endif
   
   //printReadings();
-  normalOperation();
+  normalOperation(); //Update swS1.update() only if S8 and S9 are open
   //-----------Picture Taking Functions START-----------------
-  //sw_S1.Update();
-  Auto100Exposure();
   noDongle();
   flashOperation();
   positionB();
   positionT();
   manualExposure();
+  Auto100Exposure();
   Auto600Exposure();
   //---------- Picture Taking Functions END-----------------
 
@@ -118,18 +119,19 @@ void turnLedsOff() { //On Dongle, todo:move to camerafunction
 }
 
 #if SONAR
-
 void printReadings() {
   //Serial.print("GTD: ");
   //Serial.print(openSX70.getGTD());
-  Serial.print("Is Focused: ");
+  Serial.print("S1T");
+  Serial.print(digitalRead(PIN_S1));
+  Serial.print(" | Is Focused: ");
   Serial.print(isFocused);
   Serial.print(" | GTD: ");
-  Serial.print(analogRead(PIN_GTD));
+  Serial.print(digitalRead(PIN_GTD));
   Serial.print(" | S1F: ");
   Serial.print(digitalRead(PIN_S1F));
   Serial.print(" | FT: ");
-  Serial.print(digitalRead(PIN_FT));
+  Serial.print(analogRead(PIN_FT));
   Serial.print(" | FF: ");
   Serial.println(digitalRead(PIN_FF));
   return;
@@ -137,7 +139,7 @@ void printReadings() {
 
 void preFocus() {
   if ((digitalRead(PIN_S1F) == HIGH) && (isFocused == 0)) { // S1F pressed
-    openSX70.S1F_Focus(); //?!
+    openSX70.S1F_Focus();
     currentPicOnFocus = currentPicture;
     isFocused = 1;
     return;
@@ -148,7 +150,7 @@ void unfocusing(){
   //delay(100);
   if ((digitalRead(PIN_S1F) == LOW) && (isFocused == 1)) { // S1F pressed  -- selftimer (doubleclick the red button) is not working this way
     //delay(100);
-    openSX70.S1F_Unfocus(); // ?!
+    openSX70.S1F_Unfocus();
     //currentPicOnFocus = currentPicture;
     isFocused = 0;
     turnLedsOff();
@@ -174,10 +176,10 @@ void BlinkISO() { //read the default ISO and blink once for SX70 and twice for 6
       delay(500);
     }
     else {
-#if SIMPLEDEBUG
+    #if SIMPLEDEBUG
       Serial.println("No ISO Selected");
       myDongle.simpleBlink(5, RED);
-#endif
+    #endif
     }
     #if SIMPLEDEBUG
       Serial.print ("EEPROM READ ISO: ");
@@ -332,8 +334,8 @@ void checkISOChange() {
         activeISO = _selectedISO;
         #if SIMPLEDEBUG
         Serial.print("checkISOChange() Function: ISO has changed, make activeISO = selectedISO, savedISO:");
-        Serial.println(savedISO);
-        Serial.print("selectedISO: ");
+        Serial.print(savedISO);
+        Serial.print(" selectedISO: ");
         Serial.print(_selectedISO);
         Serial.print(" activeISO: ");
         Serial.println(activeISO);
@@ -373,21 +375,32 @@ void switch2Function(int mode) {
   if ((switch2 == 1) || (sw_S1.clicks == 2))
   {
     if (mode == 0) {
+      openSX70.SelfTimerMUP();
       digitalWrite(PIN_LED2, LOW);
       digitalWrite(PIN_LED1, LOW);
       openSX70.BlinkTimerDelay (GREEN, RED, 10);
+      //preFocus();
     }
     else if (mode == 1) {
+      openSX70.SelfTimerMUP();
       digitalWrite(PIN_LED2, LOW);
       digitalWrite(PIN_LED1, LOW);
       openSX70.BlinkTimerDelay (GREEN, RED, 10);
+      //preFocus();
     } else if (mode == 2) {
+      openSX70.SelfTimerMUP();
       digitalWrite(PIN_LED2, LOW);
       digitalWrite(PIN_LED1, LOW);
       openSX70.BlinkTimerDelay (GREEN, RED, 10);
+      //preFocus();
     } else if (mode == 3) {
+      openSX70.S1F_Unfocus();
+      openSX70.SelfTimerMUP();
       Serial.println("Selftimer");
       delay (10000); //NoDongleMode
+      //preFocus();
+      openSX70.S1F_Focus();
+      delay(1000);
     }
     else {
       //return false;
@@ -436,11 +449,11 @@ void darkslideEject() {
     if (nowDongle != 0) {
       myDongle.dongleLed (GREEN, LOW); //switching off green uDongle LED
     }
-  #if SIMPLEDEBUG
-    Serial.println("STATE1: EJECT DARK SLIDE");
-    Serial.print("currentPicture on Darkslide eject: ");
-    Serial.println(currentPicture);
-  #endif
+    #if SIMPLEDEBUG
+      Serial.println("STATE1: EJECT DARK SLIDE");
+      Serial.print("currentPicture on Darkslide eject: ");
+      Serial.println(currentPicture);
+    #endif
     return;
   }
 }
@@ -498,7 +511,7 @@ void normalOperation() {
     //   *
     //   *  SELECTOR = NORMAL (LOW)
     //   *  MXSHOTS >= 1
-    sw_S1.Update(); //Test Dissabled
+    sw_S1.Update();
     return; 
   }
 }
@@ -515,19 +528,18 @@ void noDongle() {
     {
       LightMeterHelper(0);
       switch1 = 0; //necessary?
-      openSX70.AutoExposure(savedISO);
       sw_S1.Reset();
+      openSX70.AutoExposure(savedISO);
       return;
     }
     if (sw_S1.clicks == 2) //Doubleclick of Longpress the Red Button with no Dongle inserted
     {
       LightMeterHelper(0);
       switch1 = 0; //necessary?
-      openSX70.AutoExposure(savedISO);
       sw_S1.Reset();
+      openSX70.AutoExposure(savedISO);
       return;
-    }
-    
+    }  
   }
 }
 
@@ -555,24 +567,24 @@ void flashOperation() {
 }
 
 void DongleInsertion() {
-  //Serial.print("pprevDongle: ");
-  //Serial.print(pprevDongle);  
-  //Serial.print("prevDongle: ");
-  //Serial.print(prevDongle);
-  //Serial.print(" | nowDongle: ");
-  //Serial.println(nowDongle);
-  
-  if ((nowDongle != 0) && ((prevDongle == 0) && (pprevDongle == 0))) { //Dongle insertion happend
-    #if SIMPLEDEBUG
-      Serial.println("Dongle insertion happend");
-    #endif
-    selector = myDongle.selector();
-    switch1 = myDongle.switch1();
-    switch2 = myDongle.switch2();
-    BlinkISO();
-    return;
+    //Serial.print("pprevDongle: ");
+    //Serial.print(pprevDongle);  
+    //Serial.print("prevDongle: ");
+    //Serial.print(prevDongle);
+    //Serial.print(" | nowDongle: ");
+    //Serial.println(nowDongle);
+    
+    if ((nowDongle != 0) && ((prevDongle == 0) && (pprevDongle == 0))) { //Dongle insertion happend
+      #if SIMPLEDEBUG
+        Serial.println("Dongle insertion happend");
+      #endif
+      selector = myDongle.selector();
+      switch1 = myDongle.switch1();
+      switch2 = myDongle.switch2();
+      BlinkISO();
+      return;
+    }
   }
-}
 
 void DongleInserted() { //Dongle is pressend LOOP
   if ((selector <= 15) && (myDongle.checkDongle() > 0))  //CASE DONGLE INSERTED
@@ -744,6 +756,7 @@ void Auto100Exposure() {
       LightMeterHelper(0);
       switch2Function(1); //Switch 2 Function on AUTO100
       sw_S1.Reset();
+      //Serial.println("EXPOSURE");
       openSX70.AutoExposure(ISO_SX70);
       checkFilmCount();
       return;

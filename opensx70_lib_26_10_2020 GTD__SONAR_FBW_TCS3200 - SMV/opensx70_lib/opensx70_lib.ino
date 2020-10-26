@@ -244,18 +244,20 @@ camera_state do_state_noDongle (void){
 camera_state do_state_dongle (void){
   camera_state result = STATE_DONGLE;
   DongleInserted();
+  
   #if SONAR
   if ((digitalRead(PIN_S1F) == HIGH)){
   #endif
-  if(selector<11){
-    LightMeterHelper(2); //LMHelper Manual Mode
-  }
-  else if(selector==14 || selector==15){
-    LightMeterHelper(1); //LMHelper Auto Mode
-  }
+    if(selector<11){
+      LightMeterHelper(2); //LMHelper Manual Mode
+    }
+    else if(selector==14 || selector==15){
+      LightMeterHelper(1); //LMHelper Auto Mode
+    }
   #if SONAR
   }
   #endif
+  
   if ((sw_S1.clicks == -1) || (sw_S1.clicks > 0)){
     LightMeterHelper(0); //Turns off LMHelper on picutre Taking
     if(switch2 == 1){
@@ -309,7 +311,6 @@ camera_state do_state_dongle (void){
 
 camera_state do_state_flashBar (void){
   camera_state result = STATE_FLASHBAR;
-
   if ((sw_S1.clicks == -1) || (sw_S1.clicks == 1))
   {
     openSX70.FlashBAR();
@@ -323,20 +324,33 @@ camera_state do_state_flashBar (void){
     sw_S1.Reset();
     checkFilmCount(); 
   } 
-
   if ((selector == 200) && (myDongle.checkDongle() == 0)){
     result = STATE_NODONGLE;
     #if STATEDEBUG
         Serial.println("TRANSITION TO STATE_NODONGLE FROM STATE_FLASHBAR");
     #endif
   } 
-
   return result;
 }
 
 camera_state do_state_multi_exp (void){
   camera_state result = STATE_MULTI_EXP;
   DongleInserted();
+
+  #if SONAR
+    if ((digitalRead(PIN_S1F) == HIGH)){
+    #endif
+      if(selector<11){
+        LightMeterHelper(2); //LMHelper Manual Mode
+      }
+      else if(selector==14 || selector==15){
+        LightMeterHelper(1); //LMHelper Auto Mode
+      }
+    #if SONAR
+    }
+  #endif
+
+  
   if ((sw_S1.clicks == -1) || (sw_S1.clicks > 0)){
     LightMeterHelper(0); //Turns off LMHelper on picutre Taking
     if(switch1 == 1){ //Why Switch1 == true?!
@@ -449,7 +463,7 @@ void DongleInserted() { //Dongle is pressend LOOP
         selector = myDongle.selector();
         switch1 = myDongle.switch1();
         switch2 = myDongle.switch2();
-        saveISOChange();//added 26.10.
+        //saveISOChange();//added 26.10.
         lmEnable(); //added 26.10.
         //BlinkISO(); //check if dongle inserted, read the default ISO and blink once for SX70 and twice for 600.
         if ((selector != prev_selector)) //Update Dongle changes
@@ -765,7 +779,7 @@ void saveISOChange() {
   selector = myDongle.selector();
 
   //TODO ADD ANALOGDONGLE MODE!!!!!!!!!!!
-  if ((switch2 == 1) && (switch1 == 1)) { //Save ISO Mode
+  //if ((switch2 == 1) && (switch1 == 1)) { //Save ISO Mode
     savedISO = ReadISO(); //read the savedISO from the EEPROM
     if (((ShutterSpeed[selector]) == AUTO600)) {
       _selectedISO = ISO_600;
@@ -792,7 +806,7 @@ void saveISOChange() {
       BlinkISORed();
       return;
     }
-    /*else{ //took this out on 26.10.
+    else{ //took this out on 26.10.
       #if SIMPLEDEBUG
         Serial.print("SaveISOChange() Function: ");
         Serial.println("savedISO is equal to selected ISO, dont save!");
@@ -800,7 +814,7 @@ void saveISOChange() {
       activeISO = _selectedISO;
       BlinkISORed(); //Blink ISO Red
       return;
-    }*/
+    }
     prev_selector = selector; //prevents green blink after ISO change
-  }
+  //}
 }

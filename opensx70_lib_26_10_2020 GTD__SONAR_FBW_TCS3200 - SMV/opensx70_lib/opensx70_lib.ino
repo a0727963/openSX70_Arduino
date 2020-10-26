@@ -243,9 +243,7 @@ camera_state do_state_noDongle (void){
 
 camera_state do_state_dongle (void){
   camera_state result = STATE_DONGLE;
-
   DongleInserted();
-
   if ((sw_S1.clicks == -1) || (sw_S1.clicks > 0)){
     LightMeterHelper(1);
     if(switch2 == 1){
@@ -313,7 +311,6 @@ camera_state do_state_flashBar (void){
     sw_S1.Reset();
     checkFilmCount(); 
   } 
-
 
   if ((selector == 200) && (myDongle.checkDongle() == 0)){
     result = STATE_NODONGLE;
@@ -439,7 +436,8 @@ void DongleInserted() { //Dongle is pressend LOOP
         selector = myDongle.selector();
         switch1 = myDongle.switch1();
         switch2 = myDongle.switch2();
-        saveISOChange();//Moved here form loop 11.06.
+        saveISOChange();//added 26.10.
+        lmEnable(); //added 26.10.
         //BlinkISO(); //check if dongle inserted, read the default ISO and blink once for SX70 and twice for 600.
         if ((selector != prev_selector)) //Update Dongle changes
         {
@@ -455,7 +453,7 @@ void DongleInserted() { //Dongle is pressend LOOP
             Serial.println (ShutterSpeed[selector]);
           #endif
           blinkAutomode();
-          //blinkSpecialmode(); //B and T Mode Selector LED Blink
+          blinkSpecialmode(); //B and T Mode Selector LED Blink
           prev_selector = selector;
           return;
         }
@@ -480,6 +478,39 @@ void DongleInserted() { //Dongle is pressend LOOP
     }
   #endif
   }
+}
+
+void lmEnable(){
+  if(selector == 12){ //POST
+      if ((switch2 == 1) && (switch1 == 1)) {
+        if (openSX70.getLIGHTMETER_HELPER() == false) {
+          openSX70.setLIGHTMETER_HELPER(true);
+          turnLedsOff();
+          digitalWrite(PIN_LED2, HIGH); //Blink Blue -- LMH On
+          myDongle.simpleBlink(1, GREEN);
+          delay(100);
+          digitalWrite(PIN_LED2, LOW);
+          #if SIMPLEDEBUG
+            Serial.println("Lightmeter is on");
+          #endif
+        }
+      }
+    }
+    else if(selector == 13){ //POSB
+       if ((switch2 == 1) && (switch1 == 1)) {
+        if (openSX70.getLIGHTMETER_HELPER() == true) {
+          openSX70.setLIGHTMETER_HELPER(false);
+          turnLedsOff();
+          digitalWrite(PIN_LED1, HIGH); //Blink RED -- LMH Off
+          myDongle.simpleBlink(1, RED);
+          delay(100);
+          digitalWrite(PIN_LED1, LOW);
+        #if SIMPLEDEBUG
+          Serial.println("Lightmeter is off");
+        #endif
+        }
+      }
+    }
 }
 
 void BlinkISO() { //read the default ISO and blink once for SX70 and twice for 600
@@ -523,14 +554,17 @@ void blinkAutomode(){
     if(ShutterSpeed[selector]== AUTO600){
       myDongle.simpleBlink(2, GREEN);
       #if SIMPLEDEBUG
-        Serial.println("blinkAutomode() - Blink 2 times Green on Auto600 select");
+        Serial.print("blinkAutomode() - Blink 2 times Green on Auto600 selected: ");
+        Serial.println(ShutterSpeed[selector]);
       #endif
-    }
-    if(ShutterSpeed[selector]== AUTO100){
+      return;
+    }else if(ShutterSpeed[selector]== AUTO100){
       myDongle.simpleBlink(1, GREEN);
       #if SIMPLEDEBUG
-        Serial.println("blinkAutomode() - Blink 1 times Green on Auto100 select");
+        Serial.print("blinkAutomode() - Blink 1 times Green on Auto100 selected: ");
+        Serial.println(ShutterSpeed[selector]);
       #endif
+      return;
     }
   }
 }
@@ -545,17 +579,6 @@ void blinkSpecialmode(){
     if(ShutterSpeed[selector]== POSB){
       myDongle.simpleBlink(1, RED);
       myDongle.simpleBlink(1, GREEN);
-    }
-    checkFilmCount();  
-  }
-  if((switch2 == 1) || (switch1 == 1)){ //Lightmeterhelper Activation Mode
-    if(ShutterSpeed[selector]== POST){
-      myDongle.simpleBlink(1, GREEN);
-      //myDongle.simpleBlink(1, RED);
-    }
-    if(ShutterSpeed[selector]== POSB){
-      myDongle.simpleBlink(1, RED);
-      //myDongle.simpleBlink(1, GREEN);
     }
     checkFilmCount();  
   }

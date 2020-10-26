@@ -244,8 +244,20 @@ camera_state do_state_noDongle (void){
 camera_state do_state_dongle (void){
   camera_state result = STATE_DONGLE;
   DongleInserted();
+  #if SONAR
+  if ((digitalRead(PIN_S1F) == HIGH)){
+  #endif
+  if(selector<12){
+    LightMeterHelper(2); //LMHelper Manual Mode
+  }
+  else if(selector==13 || selector==14){
+    LightMeterHelper(1); //LMHelper Auto Mode
+  }
+  #if SONAR
+  }
+  #endif
   if ((sw_S1.clicks == -1) || (sw_S1.clicks > 0)){
-    LightMeterHelper(1);
+    LightMeterHelper(0); //Turns off LMHelper on picutre Taking
     if(switch2 == 1){
       switch2Function(0); //switch2Function Manual Mode
     }
@@ -326,7 +338,8 @@ camera_state do_state_multi_exp (void){
   camera_state result = STATE_MULTI_EXP;
   DongleInserted();
   if ((sw_S1.clicks == -1) || (sw_S1.clicks > 0)){
-    if(switch1 == 1){
+    LightMeterHelper(0); //Turns off LMHelper on picutre Taking
+    if(switch1 == 1){ //Why Switch1 == true?!
       if(switch2 == 1){
         switch2Function(0);
       }
@@ -349,10 +362,10 @@ camera_state do_state_multi_exp (void){
       else{ //Auto catch-all. Passes the value stored in the ShutterSpeed list at the selector value
         switch(ShutterSpeed[selector]){
         case AUTO100:
-          openSX70.AutoExposure(ISO_SX70, false);
+          openSX70.AutoExposure(ISO_SX70, true);
           break;
         case AUTO600:
-          openSX70.AutoExposure(ISO_600, false);
+          openSX70.AutoExposure(ISO_600, true);
           break;
       }
         multipleExposureCounter++;

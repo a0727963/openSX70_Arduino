@@ -4,15 +4,15 @@
   //------------DEBUG OPTIONS---------------------------------------------
   #define LIGHMETER_HELPER 1
   #define DEBUG 1
-  #define SIMPLEDEBUG 0//Simple Debug On 1 - Off 0
+  #define SIMPLEDEBUG 1//Simple Debug On 1 - Off 0
   #define ADVANCEDEBUG 0 //Simple Debug On 1 - Off 0
-  #define BASICDEBUG 1 // Debug of Basic Camera Functions
+  #define BASICDEBUG 0 // Debug of Basic Camera Functions
   #define MXDEBUG 0 // Multiple Exposure Debug
   #define LMDEBUG 0 //Lightmeter Debug
   #define LMHELPERDEBUG 0 //Lightmeter Debug
   #define ROTARYDEBUG 0 //Rotaryswitch on Dongle Debug
   #define STATEDEBUG 0 //Debug state transitions
-  #define FOCUSDEBUG 0 //Focus Debug on Sonar
+  #define FOCUSDEBUG 1 //Focus Debug on Sonar
   //----------------------END DEBUG OPTIONS------------------------------
   //----------------------CAMERA PCB OPTIONS SELECTION---------------------------
   //#define TSL237T

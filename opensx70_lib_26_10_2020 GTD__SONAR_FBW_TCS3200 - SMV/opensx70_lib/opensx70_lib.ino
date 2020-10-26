@@ -89,6 +89,8 @@ void setup() {//setup - Inizialize
     Serial.println(" scaling = 100% | filter = clear");
     Serial.println("State machine core by Zane Pollard, Sonar code by Hannes");
     Serial.println("PCB design and original code by Joaquin");
+    Serial.print("ARDUINO IDE VERSION: ");
+    Serial.println(ARDUINO);
   #endif
   
   myDongle.initDS2408();
@@ -98,7 +100,7 @@ void setup() {//setup - Inizialize
   sw_S1.debounceTime   = 15;   // Debounce timer in ms 15
   sw_S1.multiclickTime = 250;  // Time limit for multi clicks
   #if SONAR
-  sw_S1.longClickTime = 0;
+  sw_S1.longClickTime = 300;
   #else
   sw_S1.longClickTime  = 300; // time until "held-down clicks" register
   #endif
@@ -221,9 +223,11 @@ camera_state do_state_noDongle (void){
     #endif
     result = STATE_DONGLE;
     if(((myDongle.switch1() == 1) && (myDongle.switch2() == 1))){
-      saveISOChange();
+      saveISOChange(); //saveISOChange on Dongle insertion if both switches are ON
     }
-    else if(myDongle.selector()<=13){
+    //else if(myDongle.selector()<=13){
+    else{
+      //Serial.println("Transition from no dongle to dongle");
       BlinkISO();
     }
   }
@@ -429,7 +433,7 @@ void turnLedsOff(){ //todo:move to camerafunction
 }
 
 void DongleInserted() { //Dongle is pressend LOOP
-  if (digitalRead(PIN_S1) != S1Logic) {
+  if (digitalRead(PIN_S1) != S1Logic) { //Dont run DongleInserted Function on S1T pressed
   #if SONAR
     if (digitalRead(PIN_S1F) != S1Logic) { //Dont run DongleInserted Function on S1F pressed
   #endif
@@ -437,6 +441,7 @@ void DongleInserted() { //Dongle is pressend LOOP
         selector = myDongle.selector();
         switch1 = myDongle.switch1();
         switch2 = myDongle.switch2();
+        saveISOChange();//Moved here form loop 11.06.
         //BlinkISO(); //check if dongle inserted, read the default ISO and blink once for SX70 and twice for 600.
         if ((selector != prev_selector)) //Update Dongle changes
         {
@@ -481,6 +486,8 @@ void DongleInserted() { //Dongle is pressend LOOP
 
 
 void BlinkISO() { //read the default ISO and blink once for SX70 and twice for 600
+  switch1 = myDongle.switch1();
+  switch2 = myDongle.switch2();
   if((switch2 != 1) || (switch1 != 1)){ //Not Save ISO //Changed to OR 01.06.2020
       #if SIMPLEDEBUG
         Serial.println("Blink for the saved ISO setting on Dongle insertion.");
@@ -514,18 +521,20 @@ void BlinkISO() { //read the default ISO and blink once for SX70 and twice for 6
 }
 
 void blinkAutomode(){
-  turnLedsOff();
-  if(ShutterSpeed[selector]== AUTO600){
-    myDongle.simpleBlink(2, GREEN);
-    #if SIMPLEDEBUG
-      Serial.println("Blink 2 times Green on Auto600 select");
-    #endif
-  }
-  if(ShutterSpeed[selector]== AUTO100){
-    myDongle.simpleBlink(1, GREEN);
-    #if SIMPLEDEBUG
-      Serial.println("Blink 1 times Green on Auto100 select");
-    #endif
+  if ((switch2 != 1) || (switch1 != 1)) { //Save ISO Mode
+    turnLedsOff();
+    if(ShutterSpeed[selector]== AUTO600){
+      myDongle.simpleBlink(2, GREEN);
+      #if SIMPLEDEBUG
+        Serial.println("blinkAutomode() - Blink 2 times Green on Auto600 select");
+      #endif
+    }
+    if(ShutterSpeed[selector]== AUTO100){
+      myDongle.simpleBlink(1, GREEN);
+      #if SIMPLEDEBUG
+        Serial.println("blinkAutomode() - Blink 1 times Green on Auto100 select");
+      #endif
+    }
   }
 }
 
@@ -697,9 +706,7 @@ void normalOperation(){
       //   *  SELECTOR = NORMAL (LOW)
       //   *  MXSHOTS >= 1
     sw_S1.Update();
-  
   }
-
 }
 
 void LightMeterHelper(byte ExposureType){
@@ -728,34 +735,42 @@ void saveISOChange() {
   selector = myDongle.selector();
 
   //TODO ADD ANALOGDONGLE MODE!!!!!!!!!!!
-  savedISO = ReadISO(); //read the savedISO from the EEPROM
-  if (((ShutterSpeed[selector]) == AUTO600)) {
-    _selectedISO = ISO_600;
+  if ((switch2 == 1) && (switch1 == 1)) { //Save ISO Mode
+    savedISO = ReadISO(); //read the savedISO from the EEPROM
+    if (((ShutterSpeed[selector]) == AUTO600)) {
+      _selectedISO = ISO_600;
+    }
+    else if (((ShutterSpeed[selector]) == AUTO100)) {
+      _selectedISO = ISO_SX70;
+    }
+    else {
+      //no ISO Selected
+      _selectedISO = DEFAULT_ISO;
+    }
+    if (savedISO != _selectedISO) { //Check if new ISO is diffrent to the ISO saved in EEPROM
+      #if SIMPLEDEBUG
+        Serial.print("SaveISOChange() Function: ");
+        Serial.print("ISO has changed, previos saved ISO (from EEPROM): ");
+        Serial.println(savedISO);
+        Serial.print("Saving new selected ISO ");
+        Serial.print(_selectedISO);
+        Serial.println(" to the EEPROM");
+      #endif
+      activeISO = _selectedISO; //Save selectedISO to volatile Variable activeISO
+      WriteISO(_selectedISO); //Write ISO to EEPROM
+      savedISO = ReadISO();
+      BlinkISORed();
+      return;
+    }
+    /*else{ //took this out on 26.10.
+      #if SIMPLEDEBUG
+        Serial.print("SaveISOChange() Function: ");
+        Serial.println("savedISO is equal to selected ISO, dont save!");
+      #endif
+      activeISO = _selectedISO;
+      BlinkISORed(); //Blink ISO Red
+      return;
+    }*/
+    prev_selector = selector; //prevents green blink after ISO change
   }
-  else if (((ShutterSpeed[selector]) == AUTO100)) {
-    _selectedISO = ISO_SX70;
-  }
-  else {
-    //no ISO Selected
-    _selectedISO = DEFAULT_ISO;
-  }
-  if (savedISO != _selectedISO) { //Check if new ISO is diffrent to the ISO saved in EEPROM
-    #if SIMPLEDEBUG
-      Serial.print("SaveISOChange() Function: ");
-      Serial.print("ISO has changed, previos saved ISO (from EEPROM): ");
-      Serial.println(savedISO);
-      Serial.print("Saving new selected ISO ");
-      Serial.print(_selectedISO);
-      Serial.println(" to the EEPROM");
-    #endif
-    activeISO = _selectedISO; //Save selectedISO to volatile Variable activeISO
-    WriteISO(_selectedISO); //Write ISO to EEPROM
-    savedISO = ReadISO();
-    BlinkISORed();
-  }
-  else{
-    activeISO = _selectedISO;
-    BlinkISORed(); //Blink ISO Red
-  }
-  prev_selector = selector; //prevents green blink after ISO change
 }

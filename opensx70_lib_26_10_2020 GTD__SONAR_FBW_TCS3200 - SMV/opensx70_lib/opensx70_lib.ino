@@ -29,7 +29,7 @@ int prevDongle ;
 int nowDongle ;
 int savedISO;
 int activeISO;
-static int checkedcount;
+//static int checkedcount;
 static int inizialized = 0;
 static int metercount;
 static int multipleExposureCounter = 0;
@@ -100,7 +100,7 @@ void setup() {//setup - Inizialize
   #if SONAR
   sw_S1.longClickTime = 300;
   #else
-  sw_S1.longClickTime  = 150; // time until "held-down clicks" register
+  sw_S1.longClickTime  = 0; // time until "held-down clicks" register
   #endif
 
   selector = myDongle.selector();

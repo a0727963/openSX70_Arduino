@@ -225,8 +225,8 @@ camera_state do_state_noDongle (void){
     if(((myDongle.switch1() == 1) && (myDongle.switch2() == 1))){
       saveISOChange(); //saveISOChange on Dongle insertion if both switches are ON
     }
-    //else if(myDongle.selector()<=13){
-    else{
+    else if(myDongle.selector()<=13){ //Dont blink on AUTOMODE
+    //else{
       //Serial.println("Transition from no dongle to dongle");
       BlinkISO();
     }
@@ -571,7 +571,7 @@ void BlinkISO() { //read the default ISO and blink once for SX70 and twice for 6
       
       prevDongle = nowDongle;
       checkFilmCount();
-      //return;
+      return;
     }
 }
 
@@ -674,7 +674,7 @@ void switch2Function(int mode) {
 
 void checkFilmCount(){
   if ((currentPicture == 8) || (currentPicture == 9)){
-    Serial.println("Aaaaaaaa");
+    //Serial.println("Aaaaaaaa");
       #if SIMPLEDEBUG
         Serial.print("Two Frames left!");
         Serial.print(", currentPicture on Two Frames left: ");

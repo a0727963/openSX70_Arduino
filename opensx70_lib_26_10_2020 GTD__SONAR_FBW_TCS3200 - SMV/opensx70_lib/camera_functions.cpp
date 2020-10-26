@@ -372,8 +372,10 @@ void Camera::Blink(unsigned int interval, int timer, int Pin, byte type)
 void Camera::ManualExposure(int notusingprobably, bool _mEXP) //ManualExposure
 {
   Camera::ExposureStart();
-  currentPicture++; 
-  WritePicture(currentPicture);
+  if(_mEXP == false){
+    currentPicture++;
+    WritePicture(currentPicture);
+  }
   #if SIMPLEDEBUG
     Serial.print("take single Picture on  Manual Mode");
     if(_mEXP){

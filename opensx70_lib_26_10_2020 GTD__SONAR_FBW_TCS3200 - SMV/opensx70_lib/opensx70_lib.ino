@@ -327,9 +327,7 @@ camera_state do_state_flashBar (void){
 
 camera_state do_state_multi_exp (void){
   camera_state result = STATE_MULTI_EXP;
-
   DongleInserted();
-
   if ((sw_S1.clicks == -1) || (sw_S1.clicks > 0)){
     if(switch1 == 1){
       if(switch2 == 1){
@@ -484,7 +482,6 @@ void DongleInserted() { //Dongle is pressend LOOP
   }
 }
 
-
 void BlinkISO() { //read the default ISO and blink once for SX70 and twice for 600
   switch1 = myDongle.switch1();
   switch2 = myDongle.switch2();
@@ -516,7 +513,7 @@ void BlinkISO() { //read the default ISO and blink once for SX70 and twice for 6
       
       prevDongle = nowDongle;
       checkFilmCount();
-      return;
+      //return;
     }
 }
 
@@ -611,14 +608,11 @@ void switch2Function(int mode) {
       openSX70.S1F_Unfocus();
       openSX70.SelfTimerMUP();
     #endif
-
     delay (10000); //NoDongleMode
     //preFocus();
-
     #if SONAR
       openSX70.S1F_Focus();
     #endif
-    
     delay(1000);
   }
   else {

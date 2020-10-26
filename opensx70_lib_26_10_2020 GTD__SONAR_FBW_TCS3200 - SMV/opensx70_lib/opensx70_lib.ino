@@ -89,8 +89,6 @@ void setup() {//setup - Inizialize
     Serial.println(" scaling = 100% | filter = clear");
     Serial.println("State machine core by Zane Pollard, Sonar code by Hannes");
     Serial.println("PCB design and original code by Joaquin");
-    Serial.print("ARDUINO IDE VERSION: ");
-    Serial.println(ARDUINO);
   #endif
   
   myDongle.initDS2408();
@@ -102,7 +100,7 @@ void setup() {//setup - Inizialize
   #if SONAR
   sw_S1.longClickTime = 300;
   #else
-  sw_S1.longClickTime  = 300; // time until "held-down clicks" register
+  sw_S1.longClickTime  = 150; // time until "held-down clicks" register
   #endif
 
   selector = myDongle.selector();
@@ -139,6 +137,7 @@ void loop() {
     unfocusing();
   #endif
   checkFilmCount();
+  //printReadings();
 }
 
 camera_state do_state_darkslide (void) {
@@ -149,7 +148,6 @@ camera_state do_state_darkslide (void) {
     called anywhere else.
   */
   camera_state result = STATE_DARKSLIDE;
-
   if (digitalRead(PIN_S8) == HIGH && digitalRead(PIN_S9) == LOW){
     currentPicture = 0; 
     WritePicture(currentPicture);
@@ -194,15 +192,12 @@ camera_state do_state_darkslide (void) {
       #endif
     }
   }
-  
   return result;
 }
 
 camera_state do_state_noDongle (void){
   camera_state result = STATE_NODONGLE;
-
   savedISO = ReadISO();
-
   LightMeterHelper(1); 
   if ((sw_S1.clicks == -1) || (sw_S1.clicks == 1)){
     LightMeterHelper(0); 
@@ -443,7 +438,7 @@ void unfocusing(){
     //currentPicOnFocus = currentPicture;
     isFocused = 0;
     turnLedsOff();
-    return;
+    //return;
   }
 }
 #endif
@@ -482,7 +477,7 @@ void DongleInserted() { //Dongle is pressend LOOP
           blinkAutomode();
           //blinkSpecialmode(); //B and T Mode Selector LED Blink
           prev_selector = selector;
-          return;
+          //return;
         }
         if ( (switch1 != prev_switch1) || (switch2 != prev_switch2)) {
           #if ADVANCEDEBUG
@@ -498,7 +493,7 @@ void DongleInserted() { //Dongle is pressend LOOP
           #endif
           prev_switch1 = switch1;
           prev_switch2 = switch2;
-          return;
+          //return;
         }
       }
   #if SONAR
@@ -571,7 +566,7 @@ void BlinkISO() { //read the default ISO and blink once for SX70 and twice for 6
       
       prevDongle = nowDongle;
       checkFilmCount();
-      return;
+      //return;
     }
 }
 
@@ -584,14 +579,14 @@ void blinkAutomode(){
         Serial.print("blinkAutomode() - Blink 2 times Green on Auto600 selected: ");
         Serial.println(ShutterSpeed[selector]);
       #endif
-      return;
+      //return;
     }else if(ShutterSpeed[selector]== AUTO100){
       myDongle.simpleBlink(1, GREEN);
       #if SIMPLEDEBUG
         Serial.print("blinkAutomode() - Blink 1 times Green on Auto100 selected: ");
         Serial.println(ShutterSpeed[selector]);
       #endif
-      return;
+      //return;
     }
   }
 }
@@ -627,32 +622,28 @@ void BlinkISORed() { //read the active ISO and blink once for SX70 and twice for
       Serial.println (activeISO);
   #endif
   checkFilmCount();
-  return;
+  //return;
 }
 
 void switch2Function(int mode) {
   //0 Manual, 1 Auto600, 2 AutoSX70, FlashBar
-
   if (mode == 0) {
     openSX70.shutterCLOSE();
     openSX70.SelfTimerMUP();
     digitalWrite(PIN_LED2, LOW);
     digitalWrite(PIN_LED1, LOW);
     openSX70.BlinkTimerDelay (GREEN, RED, 10);
-    //preFocus();
   }
   else if (mode == 1) {
     openSX70.SelfTimerMUP();
     digitalWrite(PIN_LED2, LOW);
     digitalWrite(PIN_LED1, LOW);
     openSX70.BlinkTimerDelay (GREEN, RED, 10);
-    //preFocus();
   } else if (mode == 2) {
     openSX70.SelfTimerMUP();
     digitalWrite(PIN_LED2, LOW);
     digitalWrite(PIN_LED1, LOW);
     openSX70.BlinkTimerDelay (GREEN, RED, 10);
-    //preFocus();
   } else if (mode == 3) {
     #if SONAR
       openSX70.S1F_Unfocus();
@@ -665,11 +656,10 @@ void switch2Function(int mode) {
     #endif
     delay(1000);
   }
-  else {
-    //return false;
-    return;
-  }
-  return;
+  //else {
+    //return;
+  //}
+  //return;
 }
 
 void checkFilmCount(){
@@ -683,7 +673,7 @@ void checkFilmCount(){
       //myDongle.simpleBlink(2, RED);
       myDongle.dongleLed(RED, LOW);
       myDongle.dongleLed(GREEN, HIGH);
-      return;
+      //return;
   }
   else if(currentPicture == 10){ 
     #if SIMPLEDEBUG
@@ -693,7 +683,7 @@ void checkFilmCount(){
     #endif
     myDongle.dongleLed(GREEN, LOW);
     myDongle.dongleLed(RED, HIGH);
-    return;
+    //return;
   }
 }
 
@@ -804,7 +794,7 @@ void saveISOChange() {
       WriteISO(_selectedISO); //Write ISO to EEPROM
       savedISO = ReadISO();
       BlinkISORed();
-      return;
+      //return;
     }
     else{ //took this out on 26.10.
       #if SIMPLEDEBUG
@@ -813,7 +803,7 @@ void saveISOChange() {
       #endif
       activeISO = _selectedISO;
       BlinkISORed(); //Blink ISO Red
-      return;
+      //return;
     }
     prev_selector = selector; //prevents green blink after ISO change
   //}

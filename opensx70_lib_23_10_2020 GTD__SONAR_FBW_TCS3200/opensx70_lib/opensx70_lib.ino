@@ -38,7 +38,7 @@ void setup() {//setup - Inizialize
   Serial.print(A100);
   Serial.print("| A600 =");
   Serial.print(A600);
-  Serial.print(" scaling = 100% | filter = clear");
+  Serial.println(" scaling = 100% | filter = clear");
   //Serial.println("16=2000, 20=1000, 23=500, 25=250, 30=125, 35=60, 45=30, 55=15, 166=8, 302=4, 600=2, 1100=1, POST, POSB, AUTO600, AUTO100");
 #endif
   myDongle.initDS2408();

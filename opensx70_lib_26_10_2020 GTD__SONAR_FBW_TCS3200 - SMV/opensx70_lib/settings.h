@@ -28,6 +28,7 @@
   #define UDONGLE 1
   #define GREEN 6 //DONGLE GREEN LED ADRESS
   #define RED 7   //DONGLE RED LED ADRESS
+  #define DOUBLECLICK 0
   extern const uint8_t YDelay;
   extern const byte PowerDownDelay; //time it takes to be fully closed
   extern const byte PowerDown; //max 255 = full power/POWERUP mode

@@ -136,7 +136,7 @@ void loop() {
   #if SONAR
     unfocusing();
   #endif
-  checkFilmCount();
+  //checkFilmCount();
   //printReadings();
 }
 
@@ -204,12 +204,14 @@ camera_state do_state_noDongle (void){
     openSX70.AutoExposure(savedISO, false);
     sw_S1.Reset();
   }
+  #if DOUBLECLICK
   if (sw_S1.clicks == 2){ //Doubleclick the Red Button with no Dongle inserted
     LightMeterHelper(0); 
     delay (10000);
     openSX70.AutoExposure(savedISO, false);
     sw_S1.Reset();
   }
+  #endif
 
   //Checks for dongle or flashbar insertion
   if (myDongle.checkDongle() > 0){ //((selector <= 15) && (myDongle.checkDongle() > 0))
@@ -424,6 +426,8 @@ void printReadings() {
 void preFocus() {
   if ((digitalRead(PIN_S1F) == HIGH) && (isFocused == 0)) { // S1F pressed
     openSX70.S1F_Focus();
+    Serial.print("currentPicture");
+    Serial.println(currentPicture);
     currentPicOnFocus = currentPicture;
     isFocused = 1;
     return;
@@ -664,7 +668,7 @@ void switch2Function(int mode) {
 
 void checkFilmCount(){
   if ((currentPicture == 8) || (currentPicture == 9)){
-    //Serial.println("Aaaaaaaa");
+    Serial.println("Aaaaaaaa");
       #if SIMPLEDEBUG
         Serial.print("Two Frames left!");
         Serial.print(", currentPicture on Two Frames left: ");
@@ -688,7 +692,7 @@ void checkFilmCount(){
 }
 
 
-void ispackEmpty(){
+void ispackEmpty(){ //This is doing nothing right now
   static int firstRun = 0;
   //STATE 2: PACK IS EMPTY--> NO WASTE OF FLASH
   //Camera Counter is Zero and Switch S9 is CLOSED

@@ -453,7 +453,7 @@ void DongleInserted() { //Dongle is pressend LOOP
             Serial.println (ShutterSpeed[selector]);
           #endif
           blinkAutomode();
-          blinkSpecialmode(); //B and T Mode Selector LED Blink
+          //blinkSpecialmode(); //B and T Mode Selector LED Blink
           prev_selector = selector;
           return;
         }

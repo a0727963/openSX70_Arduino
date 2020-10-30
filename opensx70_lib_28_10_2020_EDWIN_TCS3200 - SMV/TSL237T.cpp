@@ -143,7 +143,7 @@
         }
         PredExp = round((((float)myMillis) / ((float) counter)) * (float)outputCompare);
         measuring = false; //set measuring to false because the current measure is finished
-        #if LMHELPERDEBUG
+        #if LMDEBUG
         Serial.print ("pr mil: ");
         Serial.print (previousMillis);
         Serial.print (", mil: ");
@@ -161,7 +161,7 @@
         #endif
         PredExp = PredExp + ShutterConstant;
         if(PredExp>44250){ //bigger then a reliable Value | doesnt know if its needed
-          #if LMHELPERDEBUG
+          #if LMDEBUG
           Serial.println("Exception: PredExp > 44250");
           #endif
           return -2;
@@ -227,7 +227,7 @@
   {
     if (_type == 0) //OFF
     {
-      #if LMHELPERDEBUG
+      #if LMDEBUG
       Serial.println("LM Helper OFF ");
       #endif
       digitalWrite(PIN_LED1, LOW);
@@ -314,7 +314,7 @@
       {
         digitalWrite(PIN_LED1, HIGH);
         digitalWrite(PIN_LED2, HIGH);
-        #if LMHELPERDEBUG
+        #if LMDEBUG
           Serial.println ("LOW LIGHT");
         #endif
         return;

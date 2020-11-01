@@ -5,9 +5,17 @@
 // This source available from my github https://github.com/ianonahillroad/CameraShutterTimer
 // Memory on the Aurdino is very short. Most strings moved to Flash (PROGMEM) ie. F("xyz")
 
+#define BH1750S 0
+#if BH1750S
+#include <Arduino.h>
+//BH1750 HP
+#include <hp_BH1750.h>  //inlude the library
+hp_BH1750 BH1750;       //create the sensor object
+float lightIntensity = 0;
+#endif
+
 #include "SSD1306Ascii.h"
 #include "SSD1306AsciiAvrI2c.h"
-
 #define PIN_RESET 11
 // 0X3C+SA0 - 0x3C or 0x3D
 #define I2C_ADDRESS 0x3C
@@ -66,8 +74,10 @@ long ExposureHistory[MAXEXPOSURES];  //microsecs of exposure
 byte IndexOfSpeed[MAXEXPOSURES];     //index into CheckTheseSpeeds matched to the exposure
 
 // best match will be against this speed list you can just add more number in the list if needed these are fraction denominators ie. 4 is a 1/4 and 0.25 is 4 sec
-float CheckTheseSpeeds[] = {0.25, 0.333, 0.5, 1, 2, 3, 4, 5, 8, 10, 15, 25, 30, 45, 60, 125, 250, 300, 500, 750, 1000, 2000, 3000, 4000, 5000};
+//float CheckTheseSpeeds[] = {0.25, 0.333, 0.5, 1, 2, 3, 4, 5, 8, 10, 15, 25, 30, 45, 60, 125, 250, 300, 500, 750, 1000, 2000, 3000, 4000, 5000};
 //float CheckTheseSpeeds[] = { 16, 20, 23, 25, 30, 35, 55, 55, 166, 302, 600, 1100};
+float CheckTheseSpeeds[] = {25, 29, 32, 34, 39, 44, 54, 87, 175, 311, 609, 1109};
+
 const int LONGEXPOSUREINDEX = -1; // dummy index used when and index in the array above is not found for a test exposure
 
 int CountOfExposures = 0;         //number of exposures measured this session = since reset is 0 based ie. exposure -1 as used as array index
@@ -94,9 +104,7 @@ void setup() {      //This part of the program is run exactly once on boot
     oled.begin(&Adafruit128x64, I2C_ADDRESS);
   #endif // RST_PIN >= 0
   // Call oled.setI2cClock(frequency) to change from the default frequency.
-
   oled.setFont(Adafruit5x7);
-
   uint32_t m = micros();
   oled.clear();
   oled.set2X();
@@ -106,15 +114,29 @@ void setup() {      //This part of the program is run exactly once on boot
   oled.println();
   oled.print("\nmicros: ");
   oled.print(micros() - m);
-  
   pinMode(PIN_RESET, INPUT_PULLUP);
+
+  //BH1750 START
+  //Wire.begin();
+  //myBH1750.init(); // sets default values: mode = CHM, measuring time factor = 1.0
+  //myBH1750.setMode(OTH);  // uncomment if you want to change default values
+  //myBH1750.setMeasuringTimeFactor(0.45); // uncomment for selection of value between 0.45 and 3.68
+  //BH1750 END
+
+  #if BH1750S
+  //BH1750HP
+  bool avail = BH1750.begin(BH1750_TO_GROUND);   // will be false no sensor found // use BH1750_TO_GROUND or BH1750_TO_VCC depending how you wired the address pin of the sensor.                                                 
+  // BH1750.calibrateTiming();  //uncomment this line if you want to speed up your sensor
+  BH1750.start();     
+  //
+  #endif
 
   long testrunnumber;
   // update the test series run unique number
   // This is in EPROM and persists between restarts so that every test session will have a unique reference.
-  //EEPROM.get(EPROMTESTRUNNUMBERADDRESS, testrunnumber);
+  EEPROM.get(EPROMTESTRUNNUMBERADDRESS, testrunnumber);
   testrunnumber++;
-  //EEPROM.put(EPROMTESTRUNNUMBERADDRESS, testrunnumber);
+  EEPROM.put(EPROMTESTRUNNUMBERADDRESS, testrunnumber);
   Serial.print(F("Starting Test run "));
   Serial.println ( String(testrunnumber));
 
@@ -157,7 +179,6 @@ void setup() {      //This part of the program is run exactly once on boot
 
 // Function Utility Routines
 // =========================
-
 void ExpCounterResetCHK(){
  if(CountOfExposures){
   if(!digitalRead(PIN_RESET)){
@@ -172,10 +193,8 @@ void ExpCounterResetCHK(){
  }
 }
 
-
 void DebugPrintExposureHistory() {
   // used for debug only - shows used contents of internal exposure history array
-
   int j;
   do {
     Serial.print(j);
@@ -203,7 +222,7 @@ int GetIndexOfNearestTime(long truespeed) {
   // check all the speeds against the recorded speed and pick the best one.  This loop could perhaps be made smarter.
   for (i = 0; i < (sizeof(CheckTheseSpeeds) / sizeof(int)) - 1; i++) {
     closetomicros = 1000000 / CheckTheseSpeeds[i];  //convert closeto to microseconds
-    errormicros = abs( truespeed - closetomicros); //lose sign of error
+    errormicros = abs(truespeed - closetomicros); //lose sign of error
     if  (errormicros < besterror) {  // best so far?
       besterror = errormicros; // update best error
       bestmatch = i; // update match index
@@ -266,6 +285,13 @@ void loop() {
   String sLogLine;
   ExpCounterResetCHK();
   if (ShutterFired) {
+    #if BH1750S
+    if (BH1750.hasValue() == true) {    // non blocking reading
+        lightIntensity = BH1750.getLux();
+        Serial.println(lightIntensity);
+        BH1750.start();
+    }
+    #endif
     //  noInterrupts(); // block new spurious clock inerrupts while we deal with this - we dont want our clock times messed with!
     TimerLock = true;   // Timer lock protects existing values from further interrupts during recording. we can't use nointerrupts with the ////lcd or it wont display properly
     if (CountOfExposures < MAXEXPOSURES) {
@@ -285,7 +311,7 @@ void loop() {
         // log the exposure to memory
         IndexOfSpeed[CountOfExposures] = bestmatchindex;
         ExposureHistory[CountOfExposures] = Speed;
-        //EEPROM.get(EPROMTESTRUNNUMBERADDRESS, testrunnumber);
+        EEPROM.get(EPROMTESTRUNNUMBERADDRESS, testrunnumber);
         // Open up the Log file
         #if SDREADER
         File fLogfile;
@@ -307,7 +333,7 @@ void loop() {
         if (Speedinsecs > SHOWASSECONDSOVER)  {
           // longer exposures shown in seconds
           oled.set2X();
-          sLogLine = (String)(CountOfExposures + 1) + ": " + String(Speedinsecs, 2) + " Secs";
+          sLogLine = (String)(CountOfExposures + 1) + ":" + String(Speedinsecs, 2) + " Secs";
           Serial.println(sLogLine);
           #if SDREADER
           fLogfile.println(sLogLine);
@@ -317,8 +343,11 @@ void loop() {
           oled.clear();
           oled.println(sLogLine);
           oled.set1X();
-          sLogLine = (String)(int)(1.0 / (float) CheckTheseSpeeds[bestmatchindex]) + " Sec ";  //String( x,0) seems highly unreliable in the Arduino - Avoid
-          sLogLine = sLogLine + CompareToSpeed( CheckTheseSpeeds[bestmatchindex], Speed);
+          sLogLine = (String)(int)(1.0 / (float) CheckTheseSpeeds[bestmatchindex]) + "Sec ";  //String( x,0) seems highly unreliable in the Arduino - Avoid
+          sLogLine = sLogLine + CompareToSpeed(CheckTheseSpeeds[bestmatchindex], Speed); //ERR Percentage
+          #if BH1750S
+          sLogLine = sLogLine + (String) "\n" + (lightIntensity) + "Lux"; //BH1750 Lux read
+          #endif
           Serial.print (sLogLine);
           #if SDREADER
           fLogfile.print(sLogLine);
@@ -327,26 +356,31 @@ void loop() {
           //oled.clear();
           oled.println(sLogLine);
         } else  {  // something fractional
+          //Display Meassure Index
           sLogLine =  (String)(CountOfExposures + 1) + ": ";
+          
           //display total miliseconds of shutter interval .. more decimals for short times
           if (Speed < 10000) {
             sLogLine = sLogLine + String(((float)Speed / 1000.0), 2) + "ms ";
           } else {
             sLogLine = sLogLine + (String)(int)((float)Speed / 1000.0) + "ms ";      //String( x,0) seems highly unreliable in the Arduino - Avoid
           };
-
           oled.clear();
           oled.set2X();
           oled.println(sLogLine);
           oled.set1X();
-          sLogLine = sLogLine + "1/" + String((float)1 / Speedinsecs, 1);            //display the actual shutter speed. inverse of the Speedinsecs, or 1/ the shutter speed
-          Serial.println (sLogLine);
-          #if SDREADER
-          //fLogfile.println(sLogLine);
-          //////lcd.print(sLogLine.substring(0, ////lcdWIDTH));
-          //////lcd.setCursor(0, 1);
-          #endif
+          sLogLine = "1/" + String((float)1 / Speedinsecs, 1);            //display the actual shutter speed. inverse of the Speedinsecs, or 1/ the shutter speed
           oled.println(sLogLine);
+          
+          #if BH1750S
+          sLogLine = (String) "\n" + (lightIntensity) + "Lux";
+          #endif
+          Serial.println (sLogLine);
+          oled.println(sLogLine);          
+          
+          #if SDREADER
+          fLogfile.println(sLogLine);
+          #endif
           // display assumed speed and accuracy
           sLogLine = (String)(int)CheckTheseSpeeds[bestmatchindex]; //String( x,0) seems highly unreliable in the Arduino - Avoid
           sLogLine.trim(); //note compiler restriction in use of syntax
@@ -401,7 +435,7 @@ void loop() {
           //oled.clear();
           //oled.println("");
           oled.println(sLogLine);
-          // Standard Dev
+          // Standard Deviation
           k = 0;
           do {
             if (IndexOfSpeed[k] == bestmatchindex) {
@@ -464,9 +498,12 @@ void ShutterChangeDetector() {
     if (digitalRead(LASERSENSORPIN) == HIGH && Start == 0) {
       // shutter opened - we just start a new timing
       Start = micros();       //set the variable Start to current microseconds
+      
     } else if ((digitalRead(LASERSENSORPIN) == LOW ) && (Start != 0)) {
       // Low - the shutter just closed
       Stop = micros();      // set the variable Stop to current microseconds
+
+      //lightIntensity = myBH1750.getLux();
       if (Stop > Start) {
         ShutterFired = true;
       } else {

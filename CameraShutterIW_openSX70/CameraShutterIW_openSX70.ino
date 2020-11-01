@@ -5,11 +5,10 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-
 //Display
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
-
+#define PIN_RESET 11 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 #define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
@@ -18,6 +17,16 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 volatile long Start = 0; // this is the time in microseconds that the shutter opens (the arduino runs a microsecond clock in the background always - it is reasonably accurate for this purpose)
 volatile long Stop = 0;  // this is the time in microseconds that the shutter closes
 volatile bool ShutterFired = false; // Communication from Interrupt that the shutter just fired.
+
+
+int ShutterSpeed[] = { 16, 20, 23, 25, 30, 35, 55, 55, 166, 302, 600, 1100}; //U-DONGLE Default
+const byte LONGESTEXPOSURESECS = 6;   // We will Normally igrnore any times that appear to be over LONGESTEXPOSURESECS seconds as setup the result of setup activity - you need to change this to check extra long exposures
+
+const int LONGEXPOSUREINDEX = -1; // dummy index used when and index in the array above is not found for a test exposure
+
+int CountOfExposures = 0;         //number of exposures measured this session = since reset is 0 based ie. exposure -1 as used as array index
+
+
 
 void setup() {                                                                 //This part of the program is run exactly once on boot
 
@@ -37,6 +46,8 @@ void setup() {                                                                 /
   display.setCursor(0,0);               // Cursor in der ersten Zeile auf die 10. Stelle gehen ...
   display.println("Shutterspeed Tester");      // ... und dort Text ausgeben
   display.display();
+
+  pinMode(PIN_RESET, INPUT_PULLUP);
 }
 
 void CloseToSpeed(long closeto, long truespeed) {
@@ -100,8 +111,18 @@ void CloseToSpeed(long closeto, long truespeed) {
 
 }
 
-void loop() {
+void ExpCounterResetCHK(){
+ if(CountOfExposures){
+  if(!digitalRead(PIN_RESET)){
+    Serial.println("Exp Count Reset");
+    CountOfExposures = 0;
+  }
+ }
+}
 
+
+void loop() {
+    ExpCounterResetCHK();
   // this main loop runds continiously looking to see if the ISR flagged that the shutter just fired.
   // most user outputs are presented in miliseconds ms (ms seem esier to understand than microseconds!)
 
@@ -281,5 +302,71 @@ void ShutterChangeDetector() {
     Stop = 0;                           //reset Stop to 0
 
   }
+}
 
+int GetIndexOfNearestTime(long truespeed) {
+  // Supporting utility function
+  // Finds the best matching shutter speed in the checkthespeeds array and returns its index so that this can be used generally in the stats and check process
+  // Access shared Array Variable ShutterSpeed
+  // PARAM truespeed    is the measured speed in **microsconds**
+  
+  long closetomicros;
+  long errormicros;
+  long besterror = (LONGESTEXPOSURESECS * 1000000) + 1; // starts bigger than longest exposure we measure
+  int bestmatch = LONGEXPOSUREINDEX;
+  int i;
+  // check all the speeds against the recorded speed and pick the best one.  This loop could perhaps be made smarter.
+  for (i = 0; i < (sizeof(ShutterSpeed) / sizeof(int)) - 1; i++) {
+    closetomicros = 1000000 / ShutterSpeed[i];  //convert closeto to microseconds
+    errormicros = abs( truespeed - closetomicros); //lose sign of error
+    if  (errormicros < besterror) {  // best so far?
+      besterror = errormicros; // update best error
+      bestmatch = i; // update match index
+    }
+  }
+  // for debug only
+  //Serial.print(" Match " ) ;
+  //Serial.println(bestmatch);
+  return bestmatch;
+
+}
+
+String CompareToSpeed(float closeto, long truespeed) {
+  // Supporting utility function - builds a formatted string
+  // used to show error in shutter speed - format very brief due LCD width
+  // PARAM closeto      is the denominator of the common speed to check eg.  2  for half a sec 125 for 1/125 ( can be fractional ie 0.25 for 4 sec)
+  // PARAM truespeed    is the measured speed in **microsconds**
+  long closetomicros;
+  long errormicrosecs;
+  String sCompared = "";
+  float errpercentage = 0;
+  // sanity check
+  if (truespeed > 0 && closeto > 0) {
+    closetomicros = 1000000 / closeto;  //convert closeto to microseconds
+    errormicrosecs = truespeed - closetomicros;
+    // prepare a comparison
+    sCompared = " e";   //Error
+    // display a + for clarity (- happens anyway)
+    if ((errormicrosecs) > 0) {
+      sCompared = sCompared + "+";
+    };
+    // care required mostly with LCD as space limited to 20 chars - more decimals on shorter times less than 10ms
+    if (abs(errormicrosecs) < 10000) {
+      sCompared = sCompared + String(((float) errormicrosecs / 1000.0), 2);
+    } else {
+      sCompared = sCompared + (String)(int)((float)errormicrosecs / 1000.0);      //String( x,0) seems highly unreliable in the Arduino - Avoid
+    };
+    sCompared = sCompared + " " ;
+    if (errormicrosecs == 0) {
+      sCompared = sCompared + "Perfect!";
+    } else {
+      errpercentage = (float)errormicrosecs * 100.0 / (float)closetomicros;
+      sCompared = sCompared +  String(errpercentage, 1) + "%";
+    }
+  } else {
+    // bad params
+    sCompared = F("Bad CloseToSpeed Params: " );
+    sCompared = sCompared + (String) closeto + " : " + (String) truespeed;
+  }
+  return sCompared;
 }

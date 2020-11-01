@@ -332,32 +332,34 @@ void loop() {
         #endif
         if (Speedinsecs > SHOWASSECONDSOVER)  {
           // longer exposures shown in seconds
-          oled.set2X();
-          sLogLine = (String)(CountOfExposures + 1) + ":" + String(Speedinsecs, 2) + " Secs";
+          
+          sLogLine = (String)(CountOfExposures + 1) + ":" + String(Speedinsecs, 2) + "Sec"; // "1: 1 Sec"
           Serial.println(sLogLine);
+          oled.clear();
+          oled.set2X();
+            oled.println(sLogLine);
+          oled.set1X();
           #if SDREADER
           fLogfile.println(sLogLine);
-          //////lcd.print(sLogLine.substring(0, ////lcdWIDTH)); // if we do't keep this to 20 chars it wraps badly
-          //////lcd.setCursor(0, 1);
           #endif
-          oled.clear();
-          oled.println(sLogLine);
-          oled.set1X();
+
           sLogLine = (String)(int)(1.0 / (float) CheckTheseSpeeds[bestmatchindex]) + "Sec ";  //String( x,0) seems highly unreliable in the Arduino - Avoid
           sLogLine = sLogLine + CompareToSpeed(CheckTheseSpeeds[bestmatchindex], Speed); //ERR Percentage
+          
           #if BH1750S
           sLogLine = sLogLine + (String) "\n" + (lightIntensity) + "Lux"; //BH1750 Lux read
           #endif
+
           Serial.print (sLogLine);
+          oled.println(sLogLine);
           #if SDREADER
           fLogfile.print(sLogLine);
-          //////lcd.print(sLogLine.substring(0, ////lcdWIDTH));
           #endif
           //oled.clear();
-          oled.println(sLogLine);
-        } else  {  // something fractional
+        }else
+        {  // something fractional
           //Display Meassure Index
-          sLogLine =  (String)(CountOfExposures + 1) + ": ";
+          sLogLine =  (String)(CountOfExposures + 1) + ":";
           
           //display total miliseconds of shutter interval .. more decimals for short times
           if (Speed < 10000) {
@@ -369,38 +371,37 @@ void loop() {
           oled.set2X();
           oled.println(sLogLine);
           oled.set1X();
-          sLogLine = "1/" + String((float)1 / Speedinsecs, 1);            //display the actual shutter speed. inverse of the Speedinsecs, or 1/ the shutter speed
-          oled.println(sLogLine);
+          
+          sLogLine = "1/" + String((float)1 / Speedinsecs, 1) + "ms";            //display the actual shutter speed. inverse of the Speedinsecs, or 1/ the shutter speed
           
           #if BH1750S
-          sLogLine = (String) "\n" + (lightIntensity) + "Lux";
+          sLogLine = sLogLine + (String) "\n" + (lightIntensity) + "Lux";
           #endif
-          Serial.println (sLogLine);
-          oled.println(sLogLine);          
           
+          Serial.println (sLogLine);
+          oled.println(sLogLine);
           #if SDREADER
           fLogfile.println(sLogLine);
           #endif
+          
           // display assumed speed and accuracy
           sLogLine = (String)(int)CheckTheseSpeeds[bestmatchindex]; //String( x,0) seems highly unreliable in the Arduino - Avoid
           sLogLine.trim(); //note compiler restriction in use of syntax
           sLogLine = " 1/" + sLogLine + CompareToSpeed( CheckTheseSpeeds[bestmatchindex], Speed);
           Serial.print (sLogLine);
+          oled.println(sLogLine);
           #if SDREADER
           fLogfile.print(sLogLine);
-          //////lcd.print(sLogLine.substring(0, ////lcdWIDTH));
           #endif
           //oled.clear();
           //oled.println("");
-          oled.println(sLogLine);
         }
-        Serial.println ();
+        Serial.println();
+        oled.println("-----------------------------------");
         #if SDREADER
         fLogfile.println();
         #endif
-        //////lcd.setCursor(0, 2);
         //oled.clear();
-        //oled.println("");
         // start calc of  stats
         float expsum = 0;
         float expmean = 0;
@@ -419,22 +420,20 @@ void loop() {
         // show stats?
         if (n >= NFORSHOWSTATS) {
           //Average
-          #if SDREADER
           sLogLine = (F("Av "));
-          #endif
           expmean = expsum / (float)n / 1000.0;
           if (expmean < 100) {
-            sLogLine = sLogLine + String("\n") + String(expmean, 1) + CompareToSpeed( CheckTheseSpeeds[bestmatchindex], expmean * 1000);
+            sLogLine = sLogLine + String(expmean, 1) + CompareToSpeed(CheckTheseSpeeds[bestmatchindex], expmean * 1000);
           } else {
-            sLogLine = sLogLine + String("\r\n") + (String)(int)expmean + CompareToSpeed( CheckTheseSpeeds[bestmatchindex], expmean * 1000); //String( x,0) seems highly unreliable in the Arduino - Avoid
+            sLogLine = sLogLine + (String)(int)expmean + CompareToSpeed(CheckTheseSpeeds[bestmatchindex], expmean * 1000); //String( x,0) seems highly unreliable in the Arduino - Avoid
           }
           Serial.println (sLogLine);
+          oled.println(sLogLine);
           //fLogfile.println(sLogLine);
           //////lcd.print(sLogLine.substring(0, ////lcdWIDTH));
           //////lcd.setCursor(0, 3);
           //oled.clear();
           //oled.println("");
-          oled.println(sLogLine);
           // Standard Deviation
           k = 0;
           do {
@@ -448,13 +447,12 @@ void loop() {
           //#if SDREADER
           sLogLine = "SDev=" + (String)sqrt(sumsquarevar) + "ms | n=" + (String)(n);
           Serial.println (sLogLine);
+          oled.println(sLogLine);
           //fLogfile.println(sLogLine);
           //////lcd.print(sLogLine.substring(0, ////lcdWIDTH));
           //#endif
           //oled.clear();
-          oled.println(sLogLine);
         }
-
         Serial.println();
         #if SDREADER
         fLogfile.println();

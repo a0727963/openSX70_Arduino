@@ -122,7 +122,7 @@ void loop(){
   Serial.println(blue);
   delay(100);
 
- // Setting BLUE (B) filtered photodiodes to be read
+ // Setting CLEAR (C) filtered photodiodes to be read
   digitalWrite(SENSOR_S2,HIGH);
   digitalWrite(SENSOR_S3,LOW);
   

@@ -74,9 +74,9 @@ long ExposureHistory[MAXEXPOSURES];  //microsecs of exposure
 byte IndexOfSpeed[MAXEXPOSURES];     //index into CheckTheseSpeeds matched to the exposure
 
 // best match will be against this speed list you can just add more number in the list if needed these are fraction denominators ie. 4 is a 1/4 and 0.25 is 4 sec
-float CheckTheseSpeeds[] = {0.25, 0.333, 0.5, 1, 2, 3, 4, 5, 8, 10, 15, 25, 30, 45, 60, 125, 250, 300, 500, 750, 1000, 2000, 3000, 4000, 5000};
+//float CheckTheseSpeeds[] = {0.25, 0.333, 0.5, 1, 2, 3, 4, 5, 8, 10, 15, 25, 30, 45, 60, 125, 250, 300, 500, 750, 1000, 2000, 3000, 4000, 5000};
 //float CheckTheseSpeeds[] = { 16, 20, 23, 25, 30, 35, 55, 55, 166, 302, 600, 1100};
-//float CheckTheseSpeeds[] = {27, 31, 34, 36, 39, 44, 54, 87, 175, 311, 609, 1109};
+float CheckTheseSpeeds[] = {25, 29, 32, 34, 39, 44, 54, 87, 175, 311, 609, 1109};
 
 const int LONGEXPOSUREINDEX = -1; // dummy index used when and index in the array above is not found for a test exposure
 
@@ -114,7 +114,7 @@ void setup() {      //This part of the program is run exactly once on boot
   oled.println();
   oled.print("\nmicros: ");
   oled.print(micros() - m);
-  oled.println("Optoflow");
+  oled.print("Optoflow");
   pinMode(PIN_RESET, INPUT_PULLUP);
 
   //BH1750 START
@@ -490,7 +490,7 @@ void loop() {
 // =================
 
 void ShutterChangeDetector() {
-  // this is the interrupt function, which is called everytime the voltage on Sensor INPUT pin 2 changes - this follows the principle of minimising work in the ISR
+  // this is the interrupt function, which is called everytime the voltage on pin 2 changes - this follows the principle of minimising work in the ISR
   // the only job of this ISR is to detect the shutter firing and collect the start end times.
   if (!TimerLock && LaserON) {  // Timer lock protects existing values from further interrupts during recording. can't use nointerrupts with ////lcd
     ShutterFired = false; // assume not fired

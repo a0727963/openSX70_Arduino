@@ -22,7 +22,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 const int S0_Pin = 3;
 //const int S1_Pin = 2;                   //
 const int S1_Pin = 9; //on sonar                   
-const int S2_Pin = A0;
+const int S2_Pin = 8;//A0;
 const int S3_Pin = 6;
 //const int OE_Pin = 9;
 
@@ -118,7 +118,7 @@ ISR (TIMER2_COMPA_vect)
 
 void setup () 
   {
-  Serial.begin(9600);       
+  Serial.begin(115200);       
   Serial.println("Frequency Counter");
   pinMode(S0_Pin, OUTPUT);  
   pinMode(S1_Pin, OUTPUT);    
@@ -163,7 +163,7 @@ void loop ()
   TCCR0A = 0;    // stop timer 0
   TCCR0B = 0;    
   
-  startCounting (1000);  // how many ms to count for
+  startCounting (5);  // how many ms to count for
 
   while (!counterReady) 
      { }  // loop until count over
@@ -171,6 +171,11 @@ void loop ()
   // adjust counts by counting interval to give frequency in Hz
   //float frq = (timerCounts *  1000.0) / timerPeriod;
   float frq = (timerCounts *  1.0) / timerPeriod;
+  int val = frq;
+  Serial.println(val);                                           
+  Serial.write( 0xff );                                                         
+  Serial.write( (val >> 8) & 0xff );                                            
+  Serial.write( val & 0xff );
 
   //Serial.print ("Frequency: ");
   //Serial.print ((unsigned long) frq);

@@ -31,9 +31,9 @@ void setup()
 {
   size(1280, 480);
   // Open the port that the board is connected to and use the same speed (9600 bps)
-  port = new Serial(this, Serial.list()[0], 9600);
+  port = new Serial(this, Serial.list()[2], 115200);
   values = new int[width];
-  zoom = 1.0f;
+  zoom = 10.0f;
   smooth();
 }
 
